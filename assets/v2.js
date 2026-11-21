@@ -63,6 +63,41 @@
   var sv = new URLSearchParams(window.location.search).get('servico');
   if (sv) { var bx = document.querySelector('input[name="servicos[]"][value="' + sv + '"]'); if (bx) bx.checked = true; }
 
+  var wrap = document.querySelector('.rows-wrap');
+  if (wrap && document.getAnimations) {
+    var anims = function () {
+      var out = [];
+      wrap.querySelectorAll('.row').forEach(function (r) { r.getAnimations().forEach(function (a) { out.push(a); }); });
+      return out;
+    };
+    var rate = 1, target = 1, raf = null, timer = null;
+    var step = function () {
+      rate += (target - rate) * 0.12;
+      if (Math.abs(target - rate) < 0.02) rate = target;
+      anims().forEach(function (a) { a.playbackRate = rate; });
+      raf = rate === target ? null : requestAnimationFrame(step);
+    };
+    var go = function (t) { target = t; if (!raf) raf = requestAnimationFrame(step); };
+    wrap.querySelectorAll('.rw-btn').forEach(function (b) {
+      var dir = parseFloat(b.getAttribute('data-dir'));
+      var holding = false;
+      b.addEventListener('pointerdown', function (e) {
+        holding = true; b.classList.add('held'); clearTimeout(timer); go(dir * 9);
+      });
+      var release = function () {
+        if (!holding) return;
+        holding = false; b.classList.remove('held');
+        clearTimeout(timer); timer = setTimeout(function () { go(1); }, 500);
+      };
+      b.addEventListener('pointerup', release);
+      b.addEventListener('pointerleave', release);
+      b.addEventListener('pointercancel', release);
+      b.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clearTimeout(timer); go(dir * 9); timer = setTimeout(function () { go(1); }, 700); }
+      });
+    });
+  }
+
   var yr = document.querySelector('[data-year]');
   if (yr) yr.textContent = new Date().getFullYear();
 })();

@@ -1,2 +1,8 @@
 [build]
-  publish = "juniorsturmer-site"
+  publish = "."
+
+[[redirects]]
+  from = "/juniorsturmer-site/*"
+  to = "/:splat"
+  status = 301
+  force = true

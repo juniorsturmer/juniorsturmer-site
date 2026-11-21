@@ -60,6 +60,9 @@
     picks.forEach(function (el) { io2.observe(el); });
   }
 
+  var sv = new URLSearchParams(window.location.search).get('servico');
+  if (sv) { var bx = document.querySelector('input[name="servicos[]"][value="' + sv + '"]'); if (bx) bx.checked = true; }
+
   var yr = document.querySelector('[data-year]');
   if (yr) yr.textContent = new Date().getFullYear();
 })();

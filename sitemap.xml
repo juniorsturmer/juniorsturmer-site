@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://juniorsturmer.com.br/</loc><lastmod>2026-11-20</lastmod></url>
-  <url><loc>https://juniorsturmer.com.br/minha-historia/</loc><lastmod>2026-11-20</lastmod></url>
-  <url><loc>https://juniorsturmer.com.br/servicos/</loc><lastmod>2026-11-20</lastmod></url>
-  <url><loc>https://juniorsturmer.com.br/contato/</loc><lastmod>2026-11-20</lastmod></url>
-  <url><loc>https://juniorsturmer.com.br/en/</loc><lastmod>2026-11-20</lastmod></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url><loc>https://juniorsturmer.com.br/</loc><lastmod>2026-11-21</lastmod><priority>1.0</priority><xhtml:link rel="alternate" hreflang="pt-BR" href="https://juniorsturmer.com.br/"/><xhtml:link rel="alternate" hreflang="en" href="https://juniorsturmer.com.br/en/"/></url>
+  <url><loc>https://juniorsturmer.com.br/en/</loc><lastmod>2026-11-21</lastmod><priority>1.0</priority><xhtml:link rel="alternate" hreflang="pt-BR" href="https://juniorsturmer.com.br/"/><xhtml:link rel="alternate" hreflang="en" href="https://juniorsturmer.com.br/en/"/></url>
+  <url><loc>https://juniorsturmer.com.br/minha-historia/</loc><lastmod>2026-11-21</lastmod><priority>0.8</priority><xhtml:link rel="alternate" hreflang="pt-BR" href="https://juniorsturmer.com.br/minha-historia/"/><xhtml:link rel="alternate" hreflang="en" href="https://juniorsturmer.com.br/en/about/"/></url>
+  <url><loc>https://juniorsturmer.com.br/en/about/</loc><lastmod>2026-11-21</lastmod><priority>0.8</priority><xhtml:link rel="alternate" hreflang="pt-BR" href="https://juniorsturmer.com.br/minha-historia/"/><xhtml:link rel="alternate" hreflang="en" href="https://juniorsturmer.com.br/en/about/"/></url>
+  <url><loc>https://juniorsturmer.com.br/servicos/</loc><lastmod>2026-11-21</lastmod><priority>0.9</priority><xhtml:link rel="alternate" hreflang="pt-BR" href="https://juniorsturmer.com.br/servicos/"/><xhtml:link rel="alternate" hreflang="en" href="https://juniorsturmer.com.br/en/services/"/></url>
+  <url><loc>https://juniorsturmer.com.br/en/services/</loc><lastmod>2026-11-21</lastmod><priority>0.9</priority><xhtml:link rel="alternate" hreflang="pt-BR" href="https://juniorsturmer.com.br/servicos/"/><xhtml:link rel="alternate" hreflang="en" href="https://juniorsturmer.com.br/en/services/"/></url>
+  <url><loc>https://juniorsturmer.com.br/contato/</loc><lastmod>2026-11-21</lastmod><priority>0.7</priority><xhtml:link rel="alternate" hreflang="pt-BR" href="https://juniorsturmer.com.br/contato/"/><xhtml:link rel="alternate" hreflang="en" href="https://juniorsturmer.com.br/en/contact/"/></url>
+  <url><loc>https://juniorsturmer.com.br/en/contact/</loc><lastmod>2026-11-21</lastmod><priority>0.7</priority><xhtml:link rel="alternate" hreflang="pt-BR" href="https://juniorsturmer.com.br/contato/"/><xhtml:link rel="alternate" hreflang="en" href="https://juniorsturmer.com.br/en/contact/"/></url>
 </urlset>

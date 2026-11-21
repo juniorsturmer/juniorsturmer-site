@@ -633,3 +633,9 @@ fieldset.fd { border: 0; }
 .ph-art .c2 { top: 340px; right: -10px; }
 .ph-art .c3 { bottom: 34px; left: 20px; }
 @media (max-width: 520px) { .ph-art .c1 { top: 190px; } .ph-art .c2 { top: 270px; } .ph-art .c3 { bottom: 20px; } }
+.gal-g .pic { margin: 0; border-radius: 26px; aspect-ratio: 4 / 5; transition: transform .6s var(--ease); }
+.gal-g .pic:nth-child(1) { aspect-ratio: auto; }
+.gal-g .pic:hover { transform: translateY(-6px); }
+.gal-g .pic img { transition: transform 1.2s var(--ease); }
+.gal-g .pic:hover img { transform: scale(1.04); }
+@media (max-width: 860px) { .gal-g .pic:nth-child(1) { grid-column: 1 / -1; aspect-ratio: 1 / 1; } }

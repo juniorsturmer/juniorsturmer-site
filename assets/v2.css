@@ -612,3 +612,24 @@ fieldset.fd { border: 0; }
 .row.rev { margin-left: -132px; }
 @media (max-width: 860px) { .row.rev { margin-left: -97px; } }
 @media (prefers-reduced-motion: reduce) { .row, .row.rev { animation: mq 120s linear infinite !important; } }
+.me-mini .av { width: 64px; height: 64px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+.me-mini .av img { width: 100%; height: 100%; object-fit: cover; }
+
+/* fotos reais */
+.pic { display: block; position: relative; overflow: hidden; background: var(--paper); }
+.pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.about .ph.pic { border-radius: 30px; aspect-ratio: 4 / 5; }
+.ph-art .hero-pic { position: absolute; inset: 0 40px 0 40px; border-radius: 240px 240px 28px 28px; }
+.ph-art .hero-pic img { object-position: center 18%; }
+@media (max-width: 860px) { .ph-art .hero-pic { inset: 0 24px; } }
+.tile.pic { margin: 0; background: var(--ink-3); }
+.tile.pic img { transition: transform 1.2s var(--ease); }
+.tile.pic:hover img { transform: scale(1.05); }
+.tile.pic::after { content: ""; position: absolute; inset: 55% 0 0 0; background: linear-gradient(180deg, rgba(10, 10, 10, 0), rgba(10, 10, 10, .55)); pointer-events: none; }
+.tile.pic .cap { z-index: 2; color: var(--white); }
+.about .about-ph { border-radius: 30px; aspect-ratio: 4 / 5; }
+@media (max-width: 860px) { .about .about-ph { max-width: 440px; } }
+.ph-art .c1 { top: 240px; left: -10px; }
+.ph-art .c2 { top: 340px; right: -10px; }
+.ph-art .c3 { bottom: 34px; left: 20px; }
+@media (max-width: 520px) { .ph-art .c1 { top: 190px; } .ph-art .c2 { top: 270px; } .ph-art .c3 { bottom: 20px; } }

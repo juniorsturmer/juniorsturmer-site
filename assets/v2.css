@@ -428,3 +428,29 @@ p { text-wrap: pretty; }
 @media (max-width: 520px) {
   .chip-1 { top: 250px; left: 0; } .chip-2 { top: 345px; left: 8px; } .chip-3 { top: 175px; right: 0; }
 }
+
+/* ===== rodada 3 ===== */
+/* foto colorida */
+.stage .me img { filter: none; }
+
+/* balões: balançam no próprio eixo e ganham sombra no hover */
+.chip { animation: float 7s ease-in-out infinite, sway 5.5s ease-in-out infinite; transition: margin .8s var(--ease), box-shadow .35s var(--ease), scale .35s var(--ease); cursor: default; }
+.chip-2 { animation-duration: 8s, 6.5s; }
+.chip-3 { animation-duration: 7.5s, 6s; }
+@keyframes sway { 0%, 100% { rotate: -2.2deg; } 50% { rotate: 2.2deg; } }
+.chip:hover { scale: 1.05; box-shadow: 0 0 0 6px rgba(10, 10, 10, .06), 0 26px 56px -16px rgba(0, 0, 0, .38), 0 0 0 1px rgba(10, 10, 10, .08); animation-play-state: paused; }
+
+/* 50+ em itálico */
+.big-n { font-style: italic; font-weight: 400; }
+.card-f .n { font-style: italic; font-weight: 400; }
+
+/* carrossel sempre em movimento, devagar, pra esquerda */
+.rows:hover .row { animation-play-state: running; }
+.row, .row.rev { animation: mq 90s linear infinite !important; }
+.row.rev { animation-duration: 110s !important; }
+
+/* movimentos leves continuam mesmo com "reduzir animações" ligado no sistema */
+@media (prefers-reduced-motion: reduce) {
+  .chip { animation: float 9s ease-in-out infinite, sway 7s ease-in-out infinite; }
+  .row, .row.rev { animation: mq 120s linear infinite !important; }
+}

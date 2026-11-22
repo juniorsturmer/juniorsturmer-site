@@ -21,9 +21,9 @@ en:
 
     When people talk about brand, most picture TV commercials, beautiful packaging and a polished Instagram profile. None of that seems to have much to do with companies that sell machinery, software, freight or services to other businesses.
 
-    In B2B, sales happen through relationships, proposals and a good salesperson. So brand starts to look like decoration, a marketing cost you can cut.
+    In B2B, sales happen through relationships, proposals and a good salesperson. So brand starts to look like decoration, a [marketing cost](/blog/marca-nao-e-custo-de-marketing/) you can cut.
 
-    The problem is the definition. A brand isn't the ad, just as it isn't your logo. It's what people think about your company when they hear its name. That exists in every business, whether you like it or not. The only difference is whether you take care of it or leave it to chance.
+    The problem is the definition. A brand isn't the ad, just as it [isn't your logo](/blog/sua-marca-nao-e-o-seu-logo/). It's what people think about your company when they hear its name. That exists in every business, whether you like it or not. The only difference is whether you take care of it or leave it to chance.
 
     ## B2B clients are almost never buying right now
 

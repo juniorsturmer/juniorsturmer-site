@@ -21,7 +21,7 @@ en:
 
     Every company already invests in its brand, even the ones that say they don't do marketing. They pay rent on a location people see. They pay the salary of whoever answers the phone. They pay for the phone that replies to quotes.
 
-    Each of these places is a point of contact with the client, and each contact says something about the company. A brand is the sum of everything the client experiences with you. The logo is a small part of that.
+    Each of these places is a point of contact with the client, and each contact says something about the company. As I wrote in [Your brand isn't your logo](/blog/sua-marca-nao-e-o-seu-logo/), a brand is the sum of everything the client experiences with you. The logo is a small part of that.
 
     The problem is that this money goes out every month and nobody looks at it as marketing. So the company decides to "invest in marketing" and opens an account on yet another social network, while WhatsApp takes a whole day to reply.
 
@@ -37,7 +37,7 @@ en:
 
     5. **Ask past clients for referrals.** A happy client is the cheapest channel there is, and almost nobody asks them for anything. After a good delivery, ask if they know someone with the same problem. Also ask to use a real testimonial, in their own words.
 
-    6. **Agree with your team on how to explain the company.** Ask three people on your team "what do we do?" and compare the answers. If you get three different versions, your clients are hearing about three different companies too. One simple sentence, which each person repeats in their own way, solves a good part of this.
+    6. **Agree with your team on how to explain the company.** Ask three people on your team "what do we do?" and compare the answers. If you get three different versions, your clients are hearing about three different companies too. One simple sentence, which each person repeats in their own way, solves a good part of this. I wrote more about it in [A strong brand starts at home](/blog/marca-forte-comeca-dentro-de-casa/).
 
     ## Why do this before running ads
 

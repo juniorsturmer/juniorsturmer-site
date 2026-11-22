@@ -8,6 +8,53 @@ capa_alt: Mapa de curvas de nível em cinza sobre fundo preto, com uma área cen
 destaque: false
 rascunho: false
 linkedin: ""
+en:
+  titulo: "Brand territory: the space your company can own"
+  resumo: "A brand territory is the subject your company has the legitimacy to lead. Understanding this concept changes how you approach content, sponsorships and communication."
+  capa_alt: "Gray contour map on a black background, with a central area highlighted in lime green"
+  slug: "brand-territory"
+  linkedin: ""
+  texto: |
+    Every brand talks about something. The question is whether it chose what to talk about or is just reacting to whatever comes up.
+
+    A brand territory is exactly that choice: the theme, world or cause your company can occupy with legitimacy, connecting what you sell with what matters to your client.
+
+    ## Territory isn't product
+
+    A payments company doesn't have to talk only about payments. A construction company doesn't have to talk only about square meters. The territory sits one step beyond the product, where the client's interests and the company's expertise meet.
+
+    A simple way to see it:
+
+    - **The product** is what you sell
+    - **The benefit** is the problem you solve
+    - **The territory** is the subject where you have the authority to talk to the client, even when they're not buying
+
+    > A brand territory is the place where your company is welcome even when it isn't selling anything.
+
+    ## Why this matters in practice
+
+    Without a defined territory, communication becomes a patchwork. One month it's a holiday post, the next it's a trend, then it's a promotion. Nothing adds up.
+
+    With a territory, decisions get easier:
+
+    1. **Content:** you know which subjects to talk about and, more importantly, which ones to skip.
+    2. **Sponsorships and events:** it becomes clear where your brand belongs and what's just vanity.
+    3. **Partnerships:** you recognize who makes sense by your side.
+    4. **Tone of voice:** the way you speak follows the world the brand has chosen.
+
+    ## How to find yours
+
+    There's no formula, but there is a path. I usually cross three lists:
+
+    - The subjects that matter most to the client in their day-to-day
+    - The themes where the company has real, provable experience
+    - The spaces competitors haven't occupied well yet
+
+    The territory is where the three overlap. Without the first, nobody cares. Without the second, it sounds fake. Without the third, you're just one more.
+
+    ## Occupying it takes time
+
+    Choosing the territory is the quick part. Occupying it takes years of consistent work. But when a brand becomes the reference on a subject, it stops competing for attention and starts being sought out.
 ---
 Toda marca fala sobre alguma coisa. A questão é se ela escolheu sobre o que falar ou se está só reagindo ao que aparece.
 

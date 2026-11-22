@@ -8,6 +8,46 @@ capa_alt: Grade de círculos pretos e vazados sobre fundo claro, com um único c
 destaque: false
 rascunho: false
 linkedin: ""
+en:
+  titulo: "A strong brand starts at home"
+  resumo: "There's no point promising an experience in the ad that the team doesn't deliver in service. Why a brand's first audience is the people inside the company."
+  capa_alt: "Grid of black and hollow circles on a light background, with a single lime green circle standing out"
+  slug: "a-strong-brand-starts-at-home"
+  linkedin: ""
+  texto: |
+    Some companies spend months on a well-thought-out positioning, approve a beautiful identity, launch a campaign and then, on the first call to customer service, the experience undoes all of it.
+
+    It isn't a lack of external communication. It's a lack of brand on the inside.
+
+    ## The promise is made by marketing, but kept by the team
+
+    Clients don't separate the campaign from the service. To them, it's all the same company. If the ad talks about being close and the WhatsApp takes two days to reply, the brand has lost. And it lost for the worst reason: it promised something it didn't deliver.
+
+    > Everyone who serves a client is, in that moment, the brand.
+
+    ## What changes when the team understands the brand
+
+    When people know what the company stands for and why, a few things happen almost naturally:
+
+    - **Day-to-day decisions become more consistent**, because there's a criterion beyond "we've always done it this way"
+    - **Sales makes better arguments**, because it doesn't depend on memorizing a pitch
+    - **Customer service gains autonomy**, because it knows how far it can go to keep the promise
+    - **New hires get up to speed faster**, because the culture is explained, not just felt
+
+    ## How to bring the brand inside
+
+    You don't need a big internal marketing program to start. A few simple actions already make a difference:
+
+    1. **Present the strategy, not just the visuals.** The team needs to understand the why, not just see the new logo.
+    2. **Translate the brand into behavior.** What does "being close" mean in customer service? Write down real examples.
+    3. **Bring leadership in.** If managers don't speak the brand's language, nobody else will.
+    4. **Celebrate people who do it well.** Showing internal examples teaches more than any guidelines.
+
+    ## A brand is what the company does
+
+    In the end, a brand isn't what the company says about itself. It's what it does, over and over, until it becomes an expectation.
+
+    That's why brand work doesn't end when the project is delivered. It continues in every meeting, every customer interaction and every decision. And it always starts with the people inside.
 ---
 Tem empresa que investe meses num posicionamento bem pensado, aprova uma identidade linda, lança campanha e, na primeira ligação para o atendimento, a experiência desmonta tudo.
 

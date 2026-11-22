@@ -703,3 +703,5 @@ if (fs.existsSync(llmsFile) && POSTS.pt.length) {
 }
 
 console.log(`[blog] ${POSTS.pt.length} artigos em ${LANGS.pt.base} e ${POSTS.en.length} em ${LANGS.en.base}`);
+const semIngles = POSTS.pt.filter((a) => !a.par);
+if (semIngles.length) console.warn(`[blog] ATENÇÃO: ${semIngles.length} artigo(s) sem versão em inglês (aparecem só em /blog/): ${semIngles.map((a) => a.slug).join(', ')}`);

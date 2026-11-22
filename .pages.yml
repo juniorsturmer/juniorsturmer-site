@@ -60,16 +60,18 @@ content:
         label: Texto do artigo
         type: rich-text
       - name: en
-        label: Versão em inglês (opcional)
+        label: Versão em inglês
         type: object
-        description: Preencha título e texto para o artigo aparecer também em /en/blog/. Capa, data e categoria são as mesmas da versão em português. Deixe vazio para publicar só em português.
+        description: Obrigatória. O artigo aparece em /blog/ e em /en/blog/. Capa, data e categoria são as mesmas da versão em português.
         fields:
           - name: titulo
             label: Title
             type: string
+            required: true
           - name: resumo
             label: Summary
             type: text
+            required: true
             description: Duas frases em inglês para o card, o Google e o compartilhamento.
           - name: capa_alt
             label: Cover description
@@ -85,3 +87,4 @@ content:
           - name: texto
             label: Article text
             type: rich-text
+            required: true

@@ -8,6 +8,50 @@ capa_alt: A palavra ou em itálico preto sobre fundo claro, ao lado de dois cír
 destaque: false
 rascunho: false
 linkedin: ""
+en:
+  titulo: "Positioning is choosing what to leave out"
+  resumo: "Every company wants to be remembered, but few are willing to give something up for it. Without letting go, there's no positioning."
+  capa_alt: "The word ou in black italics on a light background, next to two circles, one lime green and one empty"
+  slug: "positioning-is-choosing-what-to-leave-out"
+  linkedin: ""
+  texto: |
+    Ask any business owner what sets them apart and the answer usually comes as a list: quality, service, fair prices, speed, commitment. All true. And all exactly what the competitor down the street says too.
+
+    The problem isn't the list. It's the lack of a choice.
+
+    ## If you say everything, you're remembered for nothing
+
+    There isn't much room in a client's head. It keeps one idea per brand, sometimes two. When you try to fill that space with five promises at once, it keeps none of them.
+
+    Positioning is deciding which idea you want to stick. And, as a consequence, which ones you'll stop talking about, even if they're true.
+
+    > Positioning means saying no to good things so you can say yes to the right one.
+
+    ## The three hardest things to give up
+
+    In practice, when I work on positioning with a company, the resistance almost always shows up in the same places.
+
+    **Giving up audiences.** "But I also serve small companies." You can keep serving them. You just don't need to build your whole brand around someone who isn't your best client.
+
+    **Giving up arguments.** You can be fast, affordable and premium. But your communication can't be all three at once without sounding confused.
+
+    **Giving up trends.** A new trend shows up every month. A brand that changes its voice every time the market changes the subject becomes an echo, not a reference.
+
+    ## A simple test
+
+    Take your company's description, the one on your website or in your sales proposal, and swap your name for your main competitor's. If the text still makes sense, you don't have a positioning yet. You have a category description.
+
+    Good positioning passes three filters:
+
+    - **It's relevant** to the person buying, not just the person selling
+    - **It's true**, because operations back up what communication promises
+    - **It's yours**, because a competitor can't say the same thing without looking like a copy
+
+    ## Choosing is scary, and that's why it works
+
+    Every choice feels like it will push someone away. And it will. But a company that tries to please everyone ends up competing on the only criterion the client has left to compare: price.
+
+    A well-positioned brand doesn't need to shout louder. It just needs to be clear in the minds of the right people. Start by deciding what you'll leave out.
 ---
 Pergunta para qualquer empresário qual é o diferencial dele e a resposta costuma vir em lista: qualidade, atendimento, preço justo, agilidade, compromisso. Tudo verdade. E tudo igual ao que o concorrente da esquina também fala.
 

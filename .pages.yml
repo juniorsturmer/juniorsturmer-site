@@ -1,0 +1,61 @@
+media:
+  input: blog/imagens
+  output: /blog/imagens
+  categories: [image]
+  rename: safe
+
+content:
+  - name: artigos
+    label: Além do Logo
+    type: collection
+    path: conteudo/blog
+    filename: "{primary}.md"
+    view:
+      fields: [titulo, categoria, data, rascunho]
+      primary: titulo
+      sort: [data, titulo]
+      default:
+        sort: data
+        order: desc
+    fields:
+      - name: titulo
+        label: Título
+        type: string
+        required: true
+      - name: resumo
+        label: Resumo
+        type: text
+        description: Duas frases que aparecem no card do blog, no Google e quando o link é compartilhado.
+      - name: data
+        label: Data de publicação
+        type: date
+        options:
+          format: yyyy-MM-dd
+      - name: categoria
+        label: Categoria
+        type: select
+        options:
+          values: [Branding, Posicionamento, Estratégia, Identidade visual, Negócios, Bastidores]
+      - name: capa
+        label: Imagem de capa
+        type: image
+        description: Horizontal, de preferência 1800 x 1100 px ou maior. O site cria as versões leves sozinho.
+      - name: capa_alt
+        label: Descrição da capa
+        type: string
+        description: O que aparece na imagem, em uma frase. Ajuda no Google e na acessibilidade.
+      - name: destaque
+        label: Destacar no topo do blog
+        type: boolean
+        description: Ligado, o artigo vira o card grande do topo. Se mais de um estiver ligado, vale o mais recente.
+      - name: rascunho
+        label: Rascunho
+        type: boolean
+        description: Ligado, o artigo fica salvo mas não aparece no site. Desligue para publicar.
+      - name: linkedin
+        label: Link do artigo no LinkedIn
+        type: string
+        description: Opcional. Se o artigo também saiu no LinkedIn, cole o link para aparecer no fim do artigo.
+      - name: body
+        label: Texto do artigo
+        type: rich-text

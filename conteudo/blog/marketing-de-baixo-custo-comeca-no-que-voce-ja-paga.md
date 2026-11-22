@@ -8,6 +8,52 @@ capa_alt: "Mãos limpando com um pano o vidro da vitrine de uma loja de bairro n
 destaque: false
 rascunho: false
 linkedin: ""
+en:
+  titulo: "Low-cost marketing starts with what you already pay for"
+  resumo: "Low-cost marketing for small and mid-sized companies doesn't start with a new tool. It starts with the WhatsApp, the storefront and the proposal you already have."
+  capa_alt: "Hands wiping the glass of a neighborhood shop window with a cloth in the late afternoon, half the glass clean and half still dusty."
+  slug: "low-cost-marketing-starts-with-what-you-already-pay-for"
+  linkedin: ""
+  texto: |
+    When a business owner asks me where to start with marketing on a small budget, they almost always expect to hear the name of a tool. A new social network, an ad, an app. My answer tends to disappoint in the first minute: low-cost marketing for small businesses starts with what you already have and already pay for. Your WhatsApp, your storefront, your proposal, the client who has already bought from you.
+
+    ## Where your company already spends on marketing without noticing
+
+    Every company already invests in its brand, even the ones that say they don't do marketing. They pay rent on a location people see. They pay the salary of whoever answers the phone. They pay for the phone that replies to quotes.
+
+    Each of these places is a point of contact with the client, and each contact says something about the company. A brand is the sum of everything the client experiences with you. The logo is a small part of that.
+
+    The problem is that this money goes out every month and nobody looks at it as marketing. So the company decides to "invest in marketing" and opens an account on yet another social network, while WhatsApp takes a whole day to reply.
+
+    ## Six low-cost marketing strategies to start today
+
+    1. **Fix your customer service WhatsApp.** It's often where clients talk to you for the first time. Profile photo, company name spelled correctly, business hours and a welcome message that says what happens next. And agree with your team on a response time everyone actually meets.
+
+    2. **Take care of your Google Business Profile.** People who search for you by name land there before they reach your website. Wrong hours, an old phone number and a dark photo push away people who had already made up their minds. Creating and keeping the profile costs nothing. Reply to reviews, including the bad ones, calmly and signed with someone's name.
+
+    3. **Treat your storefront like an ad you've already paid for.** You pay for that space every month. A sign that's switched off, dirty glass and peeling stickers say a lot about how much the company cares before anyone walks in. The same goes for the company car and the uniform.
+
+    4. **Rewrite your sales proposal.** In many companies, it's the document that closes the sale, and it's almost always the most neglected. A clean template, with the client's problem right on the first page and a clear next step at the end, already changes the tone of the conversation.
+
+    5. **Ask past clients for referrals.** A happy client is the cheapest channel there is, and almost nobody asks them for anything. After a good delivery, ask if they know someone with the same problem. Also ask to use a real testimonial, in their own words.
+
+    6. **Agree with your team on how to explain the company.** Ask three people on your team "what do we do?" and compare the answers. If you get three different versions, your clients are hearing about three different companies too. One simple sentence, which each person repeats in their own way, solves a good part of this.
+
+    ## Why do this before running ads
+
+    Ads work like a magnifying glass. If the experience is good, they spread something good. If service is slow and the proposal is confusing, they just bring more people to the problem, and you pay for every one of them.
+
+    That's why I flip the order most small businesses follow. First what already exists, then what costs more. Ads aren't bad. They just perform better when they find the house in order.
+
+    > Before paying to bring in new clients, fix the place where they'll arrive.
+
+    ## If you can only do one thing this week
+
+    Pick the touchpoint most clients go through before they buy. For many companies, that's WhatsApp or the proposal.
+
+    Send a message to your own company as if you were a client. Or read the last proposal you sent as if you were the one paying for it. Write down everything that bothered you. That list is your marketing plan for next month, and it costs almost nothing.
+
+    If your company has already sorted out the basics and wants to understand the next step for its brand, [let's start with a conversation](/en/services/).
 ---
 Quando um dono de empresa me pergunta por onde começar o marketing com pouco dinheiro, ele quase sempre espera ouvir o nome de uma ferramenta. Uma rede social nova, um anúncio, um aplicativo. Minha resposta costuma decepcionar no primeiro minuto: marketing de baixo custo para pequenas empresas começa no que você já tem e já paga. O WhatsApp, a fachada, a proposta, o cliente que já comprou.
 

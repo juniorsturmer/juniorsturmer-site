@@ -8,6 +8,53 @@ capa_alt: "Caderno espiral com caneta verde-limão sobre uma mesa de reunião de
 destaque: false
 rascunho: false
 linkedin: ""
+en:
+  titulo: "Why B2B companies need a brand too"
+  resumo: "A brand isn't a retail luxury for B2B companies. It's what makes a client remember you the day they decide to switch suppliers."
+  capa_alt: "Spiral notebook with a lime green pen on a wooden meeting table, facing an empty chair, in golden late afternoon light."
+  slug: "why-b2b-companies-need-a-brand-too"
+  linkedin: ""
+  texto: |
+    This week a client told me: "brand is for companies that sell to consumers." It's not the first time I've heard it, and I understand the reasoning. But I think the opposite is true. **A brand for a B2B company** matters as much as it does in retail, sometimes more, because the people who buy from you buy rarely, take a long time to decide and put their own name on the line when they choose a supplier.
+
+    ## Why so many people think brand is a retail thing
+
+    When people talk about brand, most picture TV commercials, beautiful packaging and a polished Instagram profile. None of that seems to have much to do with companies that sell machinery, software, freight or services to other businesses.
+
+    In B2B, sales happen through relationships, proposals and a good salesperson. So brand starts to look like decoration, a marketing cost you can cut.
+
+    The problem is the definition. A brand isn't the ad, just as it isn't your logo. It's what people think about your company when they hear its name. That exists in every business, whether you like it or not. The only difference is whether you take care of it or leave it to chance.
+
+    ## B2B clients are almost never buying right now
+
+    John Dawes, a researcher at the Ehrenberg-Bass Institute, arrived at a figure that became known as the [95:5 rule](https://marketingscience.info/news-and-insights/the-955-rule-is-the-new-6040-rule). Only about 5% of B2B buyers are ready to buy at any given moment. The other 95% will buy months, or even years, from now.
+
+    It makes sense when you think about your own clients. They already have a supplier, a contract, a system up and running. They'll only look at the market when the contract ends, the current supplier drops the ball or the company grows.
+
+    When that day comes, they won't start from scratch. They'll call two or three names that are already in their head. If yours isn't one of them, your salesperson never even gets to the table.
+
+    ## In B2B, the person choosing is also taking a risk
+
+    Buying the wrong thing for your home is annoying. Buying the wrong thing for your company can cost the person who signed off their job.
+
+    That's why B2B buyers look for **safety**. And the decision is almost never made by one person: it goes through partners, finance, sometimes legal. People who have never spoken to your salesperson and will form an opinion based on what they find about your company.
+
+    Since 2019 I've been building and running marketing and branding at TruckPag, a fintech that started without investors, serves businesses and now moves more than R$2 billion a year. Over that time it became clear to me that business owners don't choose a financial partner because of a pretty ad. They choose it because they've heard of it, because they've seen the brand show up the same way every time, and because it kept its promise to someone they know.
+
+    > In B2B, your brand walks into the meeting before your salesperson and stays there after they leave.
+
+    ## Where a B2B company's brand actually shows up
+
+    You don't need a TV campaign. In most companies, the brand shows up in much simpler places:
+
+    - **The sales proposal.** A well-organized document that explains what you do in the client's language gets through the partners' meeting with fewer questions.
+    - **The website and LinkedIn.** That's where finance will check whether you really exist and whether you look as big as you say you are.
+    - **Customer service.** Response time on WhatsApp and the tone of the conversation count as much as the proposal.
+    - **How your team explains the company.** If every salesperson tells a different story, the client remembers none of them.
+
+    A test to run this week: ask someone outside the company to search for you as if they were a buyer who had never heard of you. What impression is left after five minutes of Google, website and LinkedIn?
+
+    That impression is already your brand, whether you look after it or not. If your company sells to other companies and you want a better answer to that question, [let's start with a conversation](/en/services/).
 ---
 Essa semana ouvi de um cliente: "marca é coisa de empresa que vende pra consumidor final". Não é a primeira vez, e eu entendo o raciocínio. Mas penso o contrário. **Marca para empresa B2B** pesa tanto quanto no varejo, às vezes mais, porque quem compra de você compra pouco, demora pra decidir e coloca o próprio nome em jogo quando escolhe um fornecedor.
 

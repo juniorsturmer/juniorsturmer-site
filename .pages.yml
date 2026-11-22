@@ -59,3 +59,29 @@ content:
       - name: body
         label: Texto do artigo
         type: rich-text
+      - name: en
+        label: Versão em inglês (opcional)
+        type: object
+        description: Preencha título e texto para o artigo aparecer também em /en/blog/. Capa, data e categoria são as mesmas da versão em português. Deixe vazio para publicar só em português.
+        fields:
+          - name: titulo
+            label: Title
+            type: string
+          - name: resumo
+            label: Summary
+            type: text
+            description: Duas frases em inglês para o card, o Google e o compartilhamento.
+          - name: capa_alt
+            label: Cover description
+            type: string
+            description: O que aparece na capa, em inglês.
+          - name: slug
+            label: Endereço em inglês (opcional)
+            type: string
+            description: Ex.: why-b2b-companies-need-a-brand-too. Se ficar vazio, o site cria a partir do título.
+          - name: linkedin
+            label: LinkedIn article link (optional)
+            type: string
+          - name: texto
+            label: Article text
+            type: rich-text

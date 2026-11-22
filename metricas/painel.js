@@ -106,6 +106,7 @@
     pr_marcos: ['Os marcos que você definiu para se sentir um nome relevante.', 'Marcados como feitos quando uma menção confirmada atende o marco.'],
     pr_mencoes: ['Menções confirmadas por você.', 'Vêm do Google Alerts (depois da sua revisão) ou do cadastro manual.'],
     pr_revisar: ['Possíveis menções encontradas pelo Google Alerts.', 'O feed traz tudo que cita os nomes monitorados. Você confirma o que é você e escolhe o tipo, que define os pontos.'],
+    ig_conectar: ['Liga o painel à sua conta profissional do Instagram.', 'Você autoriza só a leitura (perfil e estatísticas) na tela da Meta, escolhendo a Página ligada ao @juniorsturmer. O acesso fica guardado no servidor, não expira e pode ser removido no Facebook em Configurações > Integrações comerciais.'],
     pr_nomes: ['Nomes que o Google Alerts monitora.', 'Junior Sturmer, Jacir Sturmer e Selzler Sturmer pegam todas as formas do seu nome completo. "Jacir Junior" é comum demais, então só conta junto com TruckPag.'],
   };
   const i = (k) => (TIPS[k] ? `<button class="i" type="button" data-tip="${k}" aria-label="O que é este indicador">i</button>` : '');
@@ -139,7 +140,7 @@
     perfil: serie(46, 0.2, 0.3, 0.6, 26, true),
   };
   S.liquidos = S.ganhos.map((g, k) => g - S.perdidos[k]);
-  const SEGUIDORES_HOJE = 3184;
+  let SEGUIDORES_HOJE = 3184;
 
   const POSTS_BLOG = [
     { t: 'Sua marca não é o seu logo', c: 'Branding', l: 312, comp: 61, tempo: 214, sh: 4.2, ct: 1.3, gerou: 2 },
@@ -167,7 +168,7 @@
   // ---------- dados reais (preenchidos por /api/painel/dados) ----------
   let DADOS = null;
   let LISTA_POSTS = null;
-  const REAL = { site: false, blog: false, buscas: false, agora: false, referencias: false };
+  const REAL = { site: false, blog: false, buscas: false, agora: false, referencias: false, ig: false };
   const real = (k) => REAL[k];
   const tagExemplo = '<span class="tag alerta" title="Esta parte ainda usa dados de exemplo">exemplo</span>';
 
@@ -276,13 +277,14 @@
     </div>`;
   }
   function postsIg(lista) {
-    const ordenados = [...lista].sort((a, b) => b.env - a.env || b.alc - a.alc);
+    const ordenados = [...lista].sort((a, b) => b.env - a.env || b.alc - a.alc).slice(0, 4);
+    if (!ordenados.length) return '<div class="card-s">Nenhum post no período.</div>';
     return `<div class="posts">${ordenados.map((p) => {
       const d = new Date(HOJE); d.setDate(d.getDate() - p.d);
       return `<article class="post">
         <div class="post-b">
           <div class="post-d">${d.getDate()} ${MESES[d.getMonth()]} ${d.getFullYear()}</div>
-          <div class="post-t">${esc(p.t)}</div>
+          <div class="post-t">${p.link ? `<a href="${esc(p.link)}" target="_blank" rel="noopener noreferrer">${esc(p.t)}</a>` : esc(p.t)}</div>
           <div class="post-m">
             <div><span class="pi">${ICO.olho}</span><b>${compacto(p.alc)}</b>Alcance</div>
             <div><span class="pi">${ICO.envio}</span><b>${pct(p.env)}</b>Envios</div>
@@ -290,7 +292,7 @@
             <div><span class="pi">${ICO.coracao}</span><b>${pct(p.cur)}</b>Curtidas</div>
           </div>
         </div>
-        <div class="thumb ${p.th}"><span class="fmt">${p.f}</span>${ICO.instagram}</div>
+        <div class="thumb ${p.img ? 'com-img' : p.th}"><span class="fmt">${p.f}</span>${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ICO.instagram}</div>
       </article>`;
     }).join('')}</div>`;
   }
@@ -315,6 +317,76 @@
   }
   const FAIXAS = ['Começando', 'Em construção', 'Reconhecido no nicho', 'Referência regional', 'Referência nacional'];
   const faixa = (v) => FAIXAS[Math.min(4, Math.floor(Math.max(0, v - 1) / 20))];
+
+  // ---------- Instagram: números usados nas telas (exemplo ou reais) ----------
+  const razao = (a, b) => (b ? (a / b) * 100 : 0);
+  const media = (arr) => (arr.length ? soma(arr) / arr.length : 0);
+  const NOME_FORMATO = { reel: 'Reel', carrossel: 'Carrossel', estatico: 'Estático', story: 'Story' };
+  function noPeriodo(dia, ini, fim) { const a = ymdLocal(datas[ini]), b = ymdLocal(datas[fim]); return dia >= a && dia <= b; }
+  function ymdLocal(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+  function igDados() {
+    const j = janela();
+    if (!REAL.ig) {
+      const liq = total('liquidos'), a = total('alcance'), it = total('interacoes'), en = total('envios'), pf = total('perfil');
+      return {
+        real: false, seguidores: SEGUIDORES_HOJE, liq, alcance: a, perfil: pf,
+        eng: razao(it.atual, a.atual), engA: razao(it.ant, a.ant),
+        env: razao(en.atual, a.atual), envA: razao(en.ant, a.ant), cur: 5.7, curA: 5.2, sal: 3.1, salA: 3.3,
+        ns: 38.4, nsA: 33.9, watch: 11.4, watchA: 9.8, skip: 41, skipA: 46,
+        stories: { alc: 412, alcA: 377, saida: 7.8, saidaA: 9.1, resp: 27, perfil: 34 },
+        conv: { visitas: Math.round(total('visitas').atual * 0.17), leads: 1, toques: 58, perfilPorPost: pf.atual / 13 },
+        posts: POSTS_IG, formatos: FORMATOS,
+      };
+    }
+    const I = DADOS.instagram;
+    const P = I.periodo || { atual: {}, ant: {} };
+    const A = P.atual || {}, B = P.ant || {};
+    const v = (o, k) => Number(o[k] || 0);
+    const feed = I.midias.filter((m) => m.formato !== 'story');
+    const atual = feed.filter((m) => noPeriodo(m.dia, j.ini, j.fim));
+    const ant = feed.filter((m) => noPeriodo(m.dia, j.pIni, j.pFim));
+    const st = I.stories.filter((x) => noPeriodo(x.dia, j.ini, j.fim));
+    const stA = I.stories.filter((x) => noPeriodo(x.dia, j.pIni, j.pFim));
+    const reels = (l) => l.filter((m) => m.formato === 'reel');
+    const watch = (l) => media(reels(l).map((m) => Number(m.i.ig_reels_avg_watch_time || 0) / 1000).filter(Boolean));
+    const skip = (l) => media(reels(l).map((m) => Number(m.i.reels_skip_rate || 0)).filter(Boolean).map((x) => (x <= 1 ? x * 100 : x)));
+    const saida = (l) => razao(soma(l.map((x) => Number((x.i.navegacao && (x.i.navegacao.TAP_EXIT || x.i.navegacao.tap_exit)) || 0))), soma(l.map((x) => Number(x.i.reach || 0))));
+    const perfilPosts = soma(atual.map((m) => Number(m.i.profile_visits || 0))) + soma(st.map((x) => Number(x.i.profile_visits || 0)));
+    const perfilAnt = soma(ant.map((m) => Number(m.i.profile_visits || 0))) + soma(stA.map((x) => Number(x.i.profile_visits || 0)));
+    // formatos: mês atual contra o anterior
+    const mesAtual = ymdLocal(HOJE).slice(0, 7);
+    const dAnt = new Date(HOJE.getFullYear(), HOJE.getMonth() - 1, 1);
+    const mesAnt = ymdLocal(dAnt).slice(0, 7);
+    const doMes = (l, m) => l.filter((x) => x.dia.slice(0, 7) === m);
+    const linhaFormato = (nome, chave) => {
+      const l = chave === 'story' ? I.stories : feed.filter((m) => m.formato === chave);
+      const cur = doMes(l, mesAtual), prev = doMes(l, mesAnt);
+      const sumI = (arr, k) => soma(arr.map((x) => Number(x.i[k] || 0)));
+      const alc = sumI(cur, 'reach');
+      return { f: nome, q: cur.length, qa: prev.length, alc: cur.length ? alc / cur.length : 0, env: razao(sumI(cur, 'shares'), alc), sal: chave === 'story' ? null : razao(sumI(cur, 'saved'), alc), cur: chave === 'story' ? null : razao(sumI(cur, 'likes'), alc) };
+    };
+    return {
+      real: true,
+      seguidores: (I.perfil && I.perfil.seguidores) || 0,
+      liq: { atual: v(A, 'follows') - v(A, 'unfollows'), ant: v(B, 'follows') - v(B, 'unfollows') },
+      alcance: { atual: v(A, 'reach'), ant: v(B, 'reach') },
+      perfil: { atual: perfilPosts, ant: perfilAnt },
+      eng: razao(v(A, 'total_interactions'), v(A, 'reach')), engA: razao(v(B, 'total_interactions'), v(B, 'reach')),
+      env: razao(v(A, 'shares'), v(A, 'reach')), envA: razao(v(B, 'shares'), v(B, 'reach')),
+      cur: razao(v(A, 'likes'), v(A, 'reach')), curA: razao(v(B, 'likes'), v(B, 'reach')),
+      sal: razao(v(A, 'saves'), v(A, 'reach')), salA: razao(v(B, 'saves'), v(B, 'reach')),
+      ns: razao(v(A, 'reach_nao_seguidores'), v(A, 'reach')), nsA: razao(v(B, 'reach_nao_seguidores'), v(B, 'reach')),
+      watch: watch(atual), watchA: watch(ant), skip: skip(atual), skipA: skip(ant),
+      stories: { alc: media(st.map((x) => Number(x.i.reach || 0))), alcA: media(stA.map((x) => Number(x.i.reach || 0))), saida: saida(st), saidaA: saida(stA), resp: soma(st.map((x) => Number(x.i.replies || 0))), perfil: soma(st.map((x) => Number(x.i.profile_visits || 0))), qtd: st.length },
+      conv: { visitas: DADOS.vindosDoInstagram ? DADOS.vindosDoInstagram.usuarios : 0, leads: DADOS.vindosDoInstagram ? DADOS.vindosDoInstagram.leads : 0, toques: v(A, 'profile_links_taps'), perfilPorPost: atual.length ? perfilPosts / atual.length : 0 },
+      posts: atual.map((m) => {
+        const alc = Number(m.i.reach || 0);
+        const dd = new Date(m.dia + 'T12:00:00');
+        return { t: m.texto || NOME_FORMATO[m.formato], f: NOME_FORMATO[m.formato], th: 't1', img: m.thumb, link: m.link, alc, env: razao(Number(m.i.shares || 0), alc), sal: razao(Number(m.i.saved || 0), alc), cur: razao(Number(m.i.likes || 0), alc), d: Math.round((HOJE - dd) / 864e5) };
+      }),
+      formatos: [linhaFormato('Reels', 'reel'), linhaFormato('Carrosséis', 'carrossel'), linhaFormato('Estáticos', 'estatico'), linhaFormato('Stories', 'story')],
+    };
+  }
 
   // ---------- gráfico ----------
   const GRAF = {
@@ -413,8 +485,17 @@
       return { media: soma(tot) / 3, ultimo: tot[0] };
     };
     const projetar = (v) => Math.round((v / dia) * diasMes);
-    const seg = media3('liquidos');
-    const metaSeg = Math.round(Math.max(seg.media * 1.15, seg.ultimo));
+    let seg = media3('liquidos');
+    let liqMes = doMes('liquidos');
+    let rodapeSeg = null;
+    if (REAL.ig) {
+      const I = DADOS.instagram;
+      const lista = (I.meses || []).filter((m) => m.follows || m.unfollows);
+      liqMes = I.mes && I.mes.atual ? (I.mes.atual.follows || 0) - (I.mes.atual.unfollows || 0) : 0;
+      if (lista.length) seg = { media: soma(lista.map((m) => m.liquidos)) / lista.length, ultimo: lista[0].liquidos };
+      else { seg = { media: (liqMes / Math.max(1, Math.min(dia, 7))) * diasMes / 1.15, ultimo: 0 }; rodapeSeg = `Meta provisória pelo ritmo dos primeiros dias, revista no dia 8 · projeção: ${n(projetar(liqMes))}`; }
+    }
+    const metaSeg = Math.max(1, Math.round(Math.max(seg.media * 1.15, seg.ultimo)));
     const ld = media3('leads');
     const metaLeads = Math.max(2, Math.round(ld.media * 1.15));
     const semanas = Math.round((diasMes / 7) * 10) / 10;
@@ -422,10 +503,16 @@
     const blogFeitos = LISTA_POSTS
       ? LISTA_POSTS.filter((a) => { const d = new Date(a.data + 'T12:00:00'); return d.getFullYear() === HOJE.getFullYear() && d.getMonth() === HOJE.getMonth(); }).length
       : Math.min(metaBlog, Math.round((dia / diasMes) * metaBlog * 0.82));
-    const metaIg = 14;
-    const igFeitos = Math.round((dia / diasMes) * 13 * 0.96);
+    let metaIg = 14;
+    let igFeitos = Math.round((dia / diasMes) * 13 * 0.96);
+    if (REAL.ig) {
+      const feed = DADOS.instagram.midias.filter((m) => m.formato !== 'story');
+      const mesStr = (k) => { const d = new Date(HOJE.getFullYear(), HOJE.getMonth() - k, 1); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
+      igFeitos = feed.filter((m) => m.dia.slice(0, 7) === mesStr(0)).length;
+      metaIg = Math.max(4, Math.round(soma([1, 2, 3].map((k) => feed.filter((m) => m.dia.slice(0, 7) === mesStr(k)).length)) / 3));
+    }
     return {
-      seg: { nome: 'Seguidores líquidos', tip: 'meta_seg', atual: doMes('liquidos'), meta: metaSeg, proj: projetar(doMes('liquidos')), rodape: `Projeção para ${MESES_L[HOJE.getMonth()]}: ${n(projetar(doMes('liquidos')))} · meta sugerida pela média de 3 meses (${n(seg.media, 0)}) + 15%` },
+      seg: { nome: 'Seguidores líquidos', tip: 'meta_seg', atual: liqMes, meta: metaSeg, proj: projetar(liqMes), rodape: rodapeSeg || `Projeção para ${MESES_L[HOJE.getMonth()]}: ${n(projetar(liqMes))} · meta sugerida pela média de 3 meses (${n(seg.media, 0)}) + 15%` },
       leads: { nome: 'Leads pelo site', tip: 'meta_leads', atual: doMes('leads'), meta: metaLeads, proj: projetar(doMes('leads')), rodape: `Projeção: ${n(projetar(doMes('leads')))}` },
       blog: { nome: 'Posts no blog', tip: 'meta_blog', atual: blogFeitos, meta: metaBlog, proj: projetar(blogFeitos), rodape: `3 por semana · projeção: ${n(projetar(blogFeitos))}` },
       ig: { nome: 'Posts no feed do Instagram', tip: 'meta_ig', atual: igFeitos, meta: metaIg, proj: projetar(igFeitos), rodape: `Reels, carrosséis e estáticos · projeção: ${n(projetar(igFeitos))}` },
@@ -440,14 +527,14 @@
         const R = real('site') ? DADOS.site : null;
         const v = R ? { atual: R.atual.usuarios, ant: R.ant.usuarios } : total('visitas');
         const l = R ? { atual: R.atual.leads, ant: R.ant.leads } : total('leads');
-        const a = total('alcance'), it = total('interacoes'), liq = total('liquidos');
+        const G = igDados();
+        const a = G.alcance, liq = G.liq;
         const j = janela();
-        const itA = (soma(fatia(S.interacoes, j.ini, j.fim)) / a.atual) * 100;
-        const itP = (soma(fatia(S.interacoes, j.pIni, j.pFim)) / a.ant) * 100;
+        const itA = G.eng, itP = G.engA;
         const metas = metasDoMes();
         return `
         <div class="grid g-kpi">
-          ${kpi({ ico: 'pessoas', label: 'Seguidores no Instagram', tip: 'ig_seguidores', valor: n(SEGUIDORES_HOJE), delta: delta(liq.atual, liq.ant), nota: `${liq.atual >= 0 ? '+' : ''}${n(liq.atual)} no período` })}
+          ${kpi({ ico: 'pessoas', label: 'Seguidores no Instagram', tip: 'ig_seguidores', valor: n(G.seguidores), delta: delta(liq.atual, liq.ant), nota: `${liq.atual >= 0 ? '+' : ''}${n(liq.atual)} no período` })}
           ${kpi({ ico: 'olho', label: 'Alcance no Instagram', tip: 'ig_alcance', valor: compacto(a.atual), delta: delta(a.atual, a.ant) })}
           ${kpi({ ico: 'faisca', label: 'Engajamento por alcance', tip: 'ig_engajamento', valor: pct(itA), delta: deltaPts(itA, itP) })}
           ${kpi({ ico: 'site', label: 'Visitas ao site', tip: 'site_visitas', valor: n(v.atual), delta: delta(v.atual, v.ant) })}
@@ -455,12 +542,12 @@
           ${kpi({ ico: 'presenca', label: 'Nota de Presença', tip: 'presenca', valor: `${PRESENCA.nota}<small>/100</small>`, delta: deltaPresenca(), nota: PRESENCA.nota90 === null ? 'sem comparação ainda' : 'vs 90 dias anteriores' })}
         </div>
         <div class="grid g-main mt">
-          ${graficoCard('geral', ['visitas', 'leads', 'alcance', 'envios'], 'Desempenho', 'Evolução diária no período escolhido')}
+          ${graficoCard('geral', REAL.ig ? ['visitas', 'leads', 'alcance'] : ['visitas', 'leads', 'alcance', 'envios'], 'Desempenho', 'Evolução diária no período escolhido')}
           <div class="card">${cardH('Metas do mês', `${MESES_L[HOJE.getMonth()]} de ${HOJE.getFullYear()}`, 'metas', 'alvo')}
             ${metaBloco(metas.seg)}${metaBloco(metas.leads)}${metaBloco(metas.blog)}${metaBloco(metas.ig)}
           </div>
         </div>
-        <div class="card mt">${cardH('Top posts do Instagram', 'Ordenados por envios por alcance', 'top_ig', 'trofeu', '<a class="btn" href="#/instagram">Ver Instagram</a>')}${postsIg(POSTS_IG)}</div>
+        <div class="card mt">${cardH('Top posts do Instagram', 'Ordenados por envios por alcance', 'top_ig', 'trofeu', '<a class="btn" href="#/instagram">Ver Instagram</a>')}${postsIg(G.posts)}</div>
         <div class="grid g-main mt">
           <div class="card">${cardH('Top 5 do blog', 'Índice de Aderência no período', 'top_blog', 'livro', '<a class="btn" href="#/blog">Ver ranking completo</a>')}${POSTS_BLOG.some((p) => p.valido) ? rankingBlog(5, true) : '<div class="card-s">Nenhum artigo com 20 leitores ou mais no período.</div>'}</div>
           <div class="card">${cardH('Nota de Presença', 'Junior Sturmer nas redes e na web', 'presenca', 'presenca', '<a class="btn" href="#/presenca">Detalhes</a>')}
@@ -552,69 +639,69 @@
     instagram: {
       nome: 'Instagram', ico: 'instagram', sub: '@juniorsturmer · dados da API da Meta (atraso de até 48 h).',
       html() {
-        const liq = total('liquidos'), a = total('alcance'), pf = total('perfil');
-        const j = janela();
-        const segIni = SEGUIDORES_HOJE - liq.atual;
-        const cresc = (liq.atual / segIni) * 100, crescA = (liq.ant / (segIni - liq.ant)) * 100;
+        const G = igDados();
+        const liq = G.liq, a = G.alcance, pf = G.perfil;
+        const segIni = G.seguidores - liq.atual;
+        const cresc = razao(liq.atual, segIni), crescA = razao(liq.ant, segIni - liq.ant);
         const metas = metasDoMes();
-        const ns = 38.4, nsA = 33.9;
-        const env = (soma(fatia(S.envios, j.ini, j.fim)) / a.atual) * 100;
-        const envA = (soma(fatia(S.envios, j.pIni, j.pFim)) / a.ant) * 100;
-        return `
+        const I = DADOS && DADOS.instagram;
+        const conectar = !G.real ? `<div class="card mt-0 conectar">${cardH('Conectar o Instagram', DADOS && DADOS.conexoes && DADOS.conexoes.instagramApp ? 'Clique para autorizar a leitura dos dados na tela da Meta. Os números abaixo ainda são exemplo.' : 'Falta cadastrar o app do Instagram no Netlify. Os números abaixo ainda são exemplo.', 'ig_conectar', 'instagram', DADOS && DADOS.conexoes && DADOS.conexoes.instagramApp ? '<a class="btn dark" href="/api/painel/instagram/conectar">Conectar Instagram</a>' : '')}</div>` : '';
+        const status = G.real ? `<div class="card-s" style="margin:-6px 0 14px">@${esc(I.usuario || '')} · ${I.coleta ? `atualizado ${horaColeta(I.coleta.em)}` : 'primeira coleta em andamento'} · <button class="lnk" type="button" id="ig-atualizar">Atualizar agora</button></div>` : '';
+        return `${conectar}${status}
         <div class="grid g-kpi">
-          ${kpi({ ico: 'pessoas', label: 'Seguidores', tip: 'ig_seguidores', valor: n(SEGUIDORES_HOJE), delta: delta(SEGUIDORES_HOJE, segIni), nota: `vs início do período (${n(segIni)})` })}
+          ${kpi({ ico: 'pessoas', label: 'Seguidores', tip: 'ig_seguidores', valor: n(G.seguidores), delta: delta(G.seguidores, segIni), nota: `vs início do período (${n(segIni)})` })}
           ${kpi({ ico: 'grafico', label: 'Seguidores líquidos', tip: 'ig_liquidos', valor: `${liq.atual >= 0 ? '+' : ''}${n(liq.atual)}`, delta: delta(liq.atual, liq.ant) })}
           ${kpi({ ico: 'faisca', label: 'Taxa de crescimento', tip: 'ig_cresc', valor: pct(cresc), delta: deltaPts(cresc, crescA) })}
           ${kpi({ ico: 'olho', label: 'Alcance', tip: 'ig_alcance', valor: compacto(a.atual), delta: delta(a.atual, a.ant) })}
-          ${kpi({ ico: 'lupa', label: 'Alcance de não seguidores', tip: 'ig_naoseg', valor: pct(ns), delta: deltaPts(ns, nsA) })}
+          ${kpi({ ico: 'lupa', label: 'Alcance de não seguidores', tip: 'ig_naoseg', valor: pct(G.ns), delta: deltaPts(G.ns, G.nsA) })}
           ${kpi({ ico: 'clique', label: 'Visitas ao perfil', tip: 'ig_perfil', valor: n(pf.atual), delta: delta(pf.atual, pf.ant) })}
         </div>
         <div class="grid g-main mt">
-          ${graficoCard('ig', ['liquidos', 'alcance', 'envios', 'interacoes'], 'Evolução do perfil', 'Diário, no período escolhido')}
+          ${graficoCard('ig', G.real ? ['liquidos', 'alcance'] : ['liquidos', 'alcance', 'envios', 'interacoes'], 'Evolução do perfil', 'Diário, no período escolhido')}
           <div class="card">${cardH('Meta de seguidores', `${MESES_L[HOJE.getMonth()]} de ${HOJE.getFullYear()}`, 'ig_meta', 'alvo')}
             <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px"><span class="kpi-v" style="font-size:40px">${n(metas.seg.atual)}</span><span class="card-s">de ${n(metas.seg.meta)} seguidores líquidos</span></div>
             ${metaBloco(Object.assign({}, metas.seg, { nome: 'Progresso do mês' }))}
             <div class="meta">
-              <div class="meta-h"><strong>Envios por alcance ${i('ig_envios')}</strong>${env >= envA ? '<span class="tag ok">Acima do mês anterior</span>' : '<span class="tag alerta">Abaixo do mês anterior</span>'}</div>
-              <div class="meta-row"><span><b>${pct(env, 2)}</b> agora</span><span>anterior ${pct(envA, 2)}</span></div>
+              <div class="meta-h"><strong>Envios por alcance ${i('ig_envios')}</strong>${G.env >= G.envA ? '<span class="tag ok">Acima do período anterior</span>' : '<span class="tag alerta">Abaixo do período anterior</span>'}</div>
+              <div class="meta-row"><span><b>${pct(G.env, 2)}</b> agora</span><span>anterior ${pct(G.envA, 2)}</span></div>
             </div>
             <div class="meta">
-              <div class="meta-h"><strong>Alcance de não seguidores ${i('ig_naoseg')}</strong>${ns >= nsA ? '<span class="tag ok">Acima do mês anterior</span>' : '<span class="tag alerta">Abaixo do mês anterior</span>'}</div>
-              <div class="meta-row"><span><b>${pct(ns)}</b> agora</span><span>anterior ${pct(nsA)}</span></div>
+              <div class="meta-h"><strong>Alcance de não seguidores ${i('ig_naoseg')}</strong>${G.ns >= G.nsA ? '<span class="tag ok">Acima do período anterior</span>' : '<span class="tag alerta">Abaixo do período anterior</span>'}</div>
+              <div class="meta-row"><span><b>${pct(G.ns)}</b> agora</span><span>anterior ${pct(G.nsA)}</span></div>
             </div>
           </div>
         </div>
         <div class="card mt">${cardH('Desempenho por formato', `${MESES_L[HOJE.getMonth()]} contra ${MESES_L[(HOJE.getMonth() + 11) % 12]}`, 'ig_formato', 'grafico')}
           <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Formato</th><th class="n">Posts no mês</th><th class="n">Mês anterior</th><th class="n">Alcance médio</th><th class="n">Envios/alcance ${i('ig_envios')}</th><th class="n">Salvos/alcance ${i('ig_salvos')}</th><th class="n">Curtidas/alcance ${i('ig_curtidas')}</th></tr></thead><tbody>
-          ${FORMATOS.map((f) => `<tr><td class="t-tit">${f.f}</td><td class="n">${f.q} ${delta(f.q, f.qa)}</td><td class="n">${f.qa}</td><td class="n">${n(f.alc)}</td><td class="n">${pct(f.env)}</td><td class="n">${f.sal === null ? '–' : pct(f.sal)}</td><td class="n">${f.cur === null ? '–' : pct(f.cur)}</td></tr>`).join('')}
+          ${G.formatos.map((f) => `<tr><td class="t-tit">${f.f}</td><td class="n">${f.q} ${delta(f.q, f.qa)}</td><td class="n">${f.qa}</td><td class="n">${n(f.alc)}</td><td class="n">${pct(f.env)}</td><td class="n">${f.sal === null ? '–' : pct(f.sal)}</td><td class="n">${f.cur === null ? '–' : pct(f.cur)}</td></tr>`).join('')}
           </tbody></table></div>
         </div>
         <div class="grid g-kpi-5 mt">
-          ${kpi({ ico: 'envio', label: 'Envios por alcance', tip: 'ig_envios', valor: pct(env, 2), delta: deltaPts(env, envA) })}
-          ${kpi({ ico: 'coracao', label: 'Curtidas por alcance', tip: 'ig_curtidas', valor: pct(5.7), delta: deltaPts(5.7, 5.2) })}
-          ${kpi({ ico: 'salvo', label: 'Salvamentos por alcance', tip: 'ig_salvos', valor: pct(3.1), delta: deltaPts(3.1, 3.3) })}
-          ${kpi({ ico: 'relogio', label: 'Tempo médio nos reels', tip: 'ig_watch', valor: tempo(11.4), delta: delta(11.4, 9.8) })}
-          ${kpi({ ico: 'faisca', label: 'Pulo nos 3 primeiros segundos', tip: 'ig_skip', valor: pct(41), delta: deltaPts(41, 46), nota: 'quanto menor, melhor' })}
+          ${kpi({ ico: 'envio', label: 'Envios por alcance', tip: 'ig_envios', valor: pct(G.env, 2), delta: deltaPts(G.env, G.envA) })}
+          ${kpi({ ico: 'coracao', label: 'Curtidas por alcance', tip: 'ig_curtidas', valor: pct(G.cur), delta: deltaPts(G.cur, G.curA) })}
+          ${kpi({ ico: 'salvo', label: 'Salvamentos por alcance', tip: 'ig_salvos', valor: pct(G.sal), delta: deltaPts(G.sal, G.salA) })}
+          ${kpi({ ico: 'relogio', label: 'Tempo médio nos reels', tip: 'ig_watch', valor: G.watch ? tempo(G.watch) : '–', delta: G.watch && G.watchA ? delta(G.watch, G.watchA) : '', nota: G.watch ? undefined : 'sem reels no período' })}
+          ${kpi({ ico: 'faisca', label: 'Pulo nos 3 primeiros segundos', tip: 'ig_skip', valor: G.skip ? pct(G.skip) : '–', delta: G.skip && G.skipA ? deltaPts(G.skip, G.skipA) : '', nota: 'quanto menor, melhor' })}
         </div>
         <div class="grid g-2 mt">
-          <div class="card">${cardH('Stories', 'Média por story no período', 'ig_stories', 'olho')}
+          <div class="card">${cardH('Stories', G.real ? `${n(G.stories.qtd)} stories no período · média por story` : 'Média por story no período', 'ig_stories', 'olho')}
             <div class="lst">
-              <div class="lst-i"><div>Alcance médio</div><div class="r"><b>412</b> ${delta(412, 377)}</div></div>
-              <div class="lst-i"><div>Taxa de saída ${i('ig_saida')}</div><div class="r"><b>${pct(7.8)}</b> ${deltaPts(7.8, 9.1)}</div></div>
-              <div class="lst-i"><div>Respostas</div><div class="r"><b>27</b> no período</div></div>
-              <div class="lst-i"><div>Cliques no link</div><div class="r"><b>34</b> no período</div></div>
+              <div class="lst-i"><div>Alcance médio</div><div class="r"><b>${n(G.stories.alc)}</b> ${G.stories.alcA ? delta(G.stories.alc, G.stories.alcA) : ''}</div></div>
+              <div class="lst-i"><div>Taxa de saída ${i('ig_saida')}</div><div class="r"><b>${pct(G.stories.saida)}</b> ${G.stories.saidaA ? deltaPts(G.stories.saida, G.stories.saidaA) : ''}</div></div>
+              <div class="lst-i"><div>Respostas</div><div class="r"><b>${n(G.stories.resp)}</b> no período</div></div>
+              <div class="lst-i"><div>Visitas ao perfil vindas de stories</div><div class="r"><b>${n(G.stories.perfil)}</b> no período</div></div>
             </div>
           </div>
           <div class="card">${cardH('Do Instagram para o negócio', 'Cruzando Instagram e GA4', 'ig_conv', 'alvo')}
             <div class="lst">
-              <div class="lst-i"><div>Visitas ao site vindas do Instagram</div><div class="r"><b>${n(Math.round(total('visitas').atual * 0.17))}</b></div></div>
-              <div class="lst-i"><div>Leads com origem Instagram</div><div class="r"><b>1</b></div></div>
-              <div class="lst-i"><div>Cliques no link da bio</div><div class="r"><b>58</b></div></div>
-              <div class="lst-i"><div>Visitas ao perfil por post</div><div class="r"><b>${n(pf.atual / 13, 0)}</b></div></div>
+              <div class="lst-i"><div>Visitas ao site vindas do Instagram</div><div class="r"><b>${n(G.conv.visitas)}</b></div></div>
+              <div class="lst-i"><div>Leads com origem Instagram</div><div class="r"><b>${n(G.conv.leads)}</b></div></div>
+              <div class="lst-i"><div>Toques nos botões de contato do perfil</div><div class="r"><b>${n(G.conv.toques)}</b></div></div>
+              <div class="lst-i"><div>Visitas ao perfil por post</div><div class="r"><b>${n(G.conv.perfilPorPost, 0)}</b></div></div>
             </div>
           </div>
         </div>
-        <div class="card mt">${cardH('Top posts', 'Ordenados por envios por alcance', 'top_ig', 'trofeu')}${postsIg(POSTS_IG)}</div>`;
+        <div class="card mt">${cardH('Top posts', 'Ordenados por envios por alcance', 'top_ig', 'trofeu')}${postsIg(G.posts)}</div>`;
       },
     },
 
@@ -689,6 +776,11 @@
     document.title = `${v.nome} | Painel de métricas`;
     $('#view').innerHTML = v.html();
     ativarGraficos();
+    const bt = $('#ig-atualizar');
+    if (bt) bt.addEventListener('click', async () => {
+      bt.disabled = true; bt.textContent = 'coletando, volte em alguns minutos';
+      try { await fetch('/api/painel/instagram/coletar', { method: 'POST', credentials: 'same-origin' }); } catch (e) { /* tenta na próxima hora */ }
+    });
   }
 
   // ---------- balão do ícone i ----------
@@ -762,18 +854,32 @@
       base.forEach((p) => POSTS_BLOG.push(Object.assign({ gerou: 0 }, p)));
       calcularIndice();
     }
+    const I = DADOS.instagram;
+    REAL.ig = Boolean(I && I.conectado && I.perfil);
+    if (REAL.ig) {
+      SEGUIDORES_HOJE = I.perfil.seguidores || 0;
+      if (I.serie && I.serie.alcance.length === DIAS) { S.alcance = I.serie.alcance; S.liquidos = I.serie.novos; }
+      GRAF.liquidos.nome = 'Novos seguidores';
+    }
     atualizarPresenca();
+  }
+  function horaColeta(ms) {
+    const d = new Date(ms);
+    const mesmoDia = d.toDateString() === new Date().toDateString();
+    return `${mesmoDia ? 'hoje' : `${d.getDate()} ${MESES[d.getMonth()]}`} às ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   }
   function avisos() {
     const exemplo = [];
     if (!REAL.site) exemplo.push('Site');
     if (!REAL.blog) exemplo.push('Blog');
-    exemplo.push('Instagram');
+    if (!REAL.ig) exemplo.push('Instagram');
     exemplo.push('Presença (menções, marcações e IAs)');
     const erros = DADOS && DADOS.erros ? Object.entries(DADOS.erros) : [];
+    const ig = DADOS && DADOS.instagram && DADOS.instagram.coleta && DADOS.instagram.coleta.erros ? Object.entries(DADOS.instagram.coleta.erros).filter(([k]) => !k.startsWith('midia:')).slice(0, 3) : [];
+    ig.forEach(([k, m]) => erros.push([`instagram ${k}`, m]));
     const el = $('#demo');
     el.hidden = false;
-    const tudo = !REAL.site && !REAL.blog;
+    const tudo = !REAL.site && !REAL.blog && !REAL.ig;
     el.innerHTML = `<span class="demo-dot" aria-hidden="true"></span><span>${tudo ? '<strong>Dados de exemplo.</strong> Os números reais entram conforme cada conexão for configurada no Netlify.' : `<strong>Dados de exemplo em:</strong> ${exemplo.join(', ')}. O resto já é real.`}${erros.length ? `<br><strong>Erro na conexão</strong> ${erros.map(([k, m]) => `${esc(k)}: ${esc(m)}`).join(' · ')}` : ''}</span>`;
   }
   async function carregar() {

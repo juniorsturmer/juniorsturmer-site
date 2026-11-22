@@ -3,6 +3,7 @@
 // Instagram e Google Alerts entram nas próximas etapas; até lá a tela usa dados de exemplo nessas partes.
 import { sessaoValida, env, CABECALHOS_PRIVADOS } from '../lib/sessao.mjs';
 import { ga4Lote, ga4TempoReal, searchConsole, linhas } from '../lib/google.mjs';
+import { dadosPainel as dadosInstagram } from '../lib/instagram.mjs';
 
 const json = (dados, status = 200) =>
   new Response(JSON.stringify(dados), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', ...CABECALHOS_PRIVADOS } });
@@ -108,10 +109,14 @@ async function dadosPaginasEBlog(P) {
     { dateRanges: [P.atual], dimensions: dims('pagePath', 'customEvent:post_id'), metrics: mets('eventCount'), dimensionFilter: evento('blog_artigo_view'), limit: 600 },
     { dateRanges: [P.atual], dimensions: dims('pagePath'), metrics: mets('userEngagementDuration', 'activeUsers'), dimensionFilter: filtroBlog, limit: 600 },
   ]);
-  const [cta, leitoresTotal] = await ga4Lote([
+  const doInstagram = { filter: { fieldName: 'sessionSource', stringFilter: { matchType: 'CONTAINS', value: 'instagram', caseSensitive: false } } };
+  const [cta, leitoresTotal, igUsuarios, igLeads] = await ga4Lote([
     { dateRanges: [P.atual], dimensions: dims('pagePath'), metrics: mets('eventCount'), dimensionFilter: { andGroup: { expressions: [evento('cta_click'), filtroBlog] } }, limit: 600 },
     { dateRanges: [P.atual, P.ant], metrics: mets('activeUsers'), dimensionFilter: evento('blog_artigo_view') },
+    { dateRanges: [P.atual], metrics: mets('activeUsers'), dimensionFilter: doInstagram },
+    { dateRanges: [P.atual], metrics: mets('eventCount'), dimensionFilter: { andGroup: { expressions: [evento('generate_lead'), doInstagram] } } },
   ]);
+  const primeiro = (rel) => { const l = linhas(rel)[0]; return l ? l.mets[0] : 0; };
 
   const pagLinhas = linhas(paginas);
   const totalPag = pagLinhas.reduce((s, l) => s + l.mets[0], 0) || 1;
@@ -143,6 +148,7 @@ async function dadosPaginasEBlog(P) {
   const lt = porPeriodo(leitoresTotal);
 
   return {
+    vindosDoInstagram: { usuarios: primeiro(igUsuarios), leads: primeiro(igLeads) },
     paginas: pagLinhas.map((l) => [l.dims[0], Math.round((l.mets[0] / totalPag) * 100)]),
     blog: {
       leitores: (lt.atual[0] && lt.atual[0].mets[0]) || 0,
@@ -207,7 +213,8 @@ export default async (req) => {
   const conexoes = {
     ga4: Boolean(env('GA4_PROPERTY_ID') && env('GOOGLE_SERVICE_ACCOUNT_JSON')),
     searchConsole: Boolean(env('GOOGLE_SERVICE_ACCOUNT_JSON')),
-    instagram: Boolean(env('IG_USER_ID') && env('IG_ACCESS_TOKEN')),
+    instagram: false,
+    instagramApp: Boolean(env('META_APP_ID') && env('META_APP_SECRET') && env('META_CONFIG_ID')),
     alerts: Boolean(env('ALERTS_FEED_URLS')),
   };
 
@@ -229,11 +236,12 @@ export default async (req) => {
   const tarefas = [];
   if (conexoes.ga4) {
     tarefas.push(tentar(() => dadosSite(P), erros, 'ga4').then((v) => { if (v) saida.site = v; }));
-    tarefas.push(tentar(() => dadosPaginasEBlog(P), erros, 'blog').then((v) => { if (v) { saida.paginas = v.paginas; saida.blog = v.blog; } }));
+    tarefas.push(tentar(() => dadosPaginasEBlog(P), erros, 'blog').then((v) => { if (v) { saida.paginas = v.paginas; saida.blog = v.blog; saida.vindosDoInstagram = v.vindosDoInstagram; } }));
     tarefas.push(tentar(dadosAgora, erros, 'agora').then((v) => { if (v) saida.agora = v; }));
     tarefas.push(tentar(() => dadosReferencias(P), erros, 'referencias').then((v) => { if (v) saida.referencias = v; }));
   }
   if (conexoes.searchConsole) tarefas.push(tentar(() => dadosBuscas(P), erros, 'searchConsole').then((v) => { if (v) saida.buscas = v; }));
+  tarefas.push(tentar(() => dadosInstagram(periodo, DIAS_SERIE), erros, 'instagram').then((v) => { if (v) { saida.instagram = v; conexoes.instagram = Boolean(v.conectado); } }));
   await Promise.all(tarefas);
 
   saida.demo = !saida.site;

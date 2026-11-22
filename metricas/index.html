@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Painel de métricas | Junior Sturmer</title>
+<script>window['ga-disable-G-1F70R1BLYX'] = true;</script>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/metricas/painel.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side" aria-label="Seções do painel">
+    <div class="side-top">
+      <span class="logo-dot" aria-hidden="true"></span>
+      <div>
+        <strong>Junior Sturmer</strong>
+        <small>Painel de métricas</small>
+      </div>
+    </div>
+    <nav class="side-nav" id="nav"></nav>
+    <div class="side-sec">Plataformas</div>
+    <nav class="side-nav side-plat">
+      <span class="nav-i is-off"><span class="ico" data-ico="linkedin"></span>LinkedIn<em>em breve</em></span>
+      <span class="nav-i is-off"><span class="ico" data-ico="tiktok"></span>TikTok<em>em breve</em></span>
+    </nav>
+    <div class="side-bottom">
+      <div class="conex" id="conexoes"></div>
+      <a class="nav-i" href="/api/painel/sair"><span class="ico" data-ico="sair"></span>Sair</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <div>
+        <h1 class="title" id="titulo">Visão geral</h1>
+        <p class="sub" id="subtitulo"></p>
+      </div>
+      <div class="top-r">
+        <div class="seg" id="periodo" role="tablist" aria-label="Período"></div>
+        <span class="chip" id="hoje"><span class="ico" data-ico="calendario"></span><span></span></span>
+      </div>
+    </header>
+    <div class="demo" id="demo" hidden>
+      <span class="demo-dot" aria-hidden="true"></span>
+      <span><strong>Dados de exemplo.</strong> Os números reais entram conforme cada conexão for configurada no Netlify.</span>
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
+<div class="tip" id="tip" role="tooltip" hidden></div>
+<script src="/metricas/painel.js" defer></script>
+</body>
+</html>

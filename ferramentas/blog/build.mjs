@@ -125,7 +125,7 @@ const truthy = (v, def) => (v === undefined || v === null || v === '' ? def : v 
 const contaPalavras = (t) => t.replace(/<[^>]+>/g, ' ').replace(/[#>*_`\[\]()!-]/g, ' ').split(/\s+/).filter(Boolean).length;
 
 // ---------- 1. copia o site estático para _site ----------
-const PULAR = new Set(['.git', 'node_modules', '_site', 'conteudo', 'ferramentas', 'juniorsturmer-site', 'package.json', 'package-lock.json', 'netlify.toml', 'README.md']);
+const PULAR = new Set(['.git', 'node_modules', '_site', 'conteudo', 'ferramentas', 'juniorsturmer-site', 'netlify', 'package.json', 'package-lock.json', 'netlify.toml', 'README.md']);
 function copiar(dir, rel = '') {
   for (const nome of fs.readdirSync(dir)) {
     if (PULAR.has(nome) && rel === '') continue;

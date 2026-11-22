@@ -8,6 +8,11 @@ import { env, assinarTexto } from './sessao.mjs';
 const VERSAO = 'v25.0';
 const GRAPH = `https://graph.facebook.com/${VERSAO}`;
 export const REDIRECT = 'https://juniorsturmer.com.br/api/painel/instagram/retorno';
+// Só esta conta pode ser ligada ao painel. Qualquer outra é recusada e os dados dela são apagados.
+export const CONTA = () => String(env('IG_USERNAME') || 'juniorsturmer').toLowerCase().replace(/^@/, '');
+const CHAVES = ['token', 'perfil', 'seguidores', 'serie', 'periodos', 'meses', 'midias', 'stories', 'coleta', 'token-invalido'];
+export async function apagarTudo() { await Promise.all(CHAVES.map((k) => loja().delete(k))); }
+const contaCerta = (t) => t && String(t.usuario || '').toLowerCase() === CONTA();
 
 export const loja = () => getStore('painel-instagram');
 const lerJSON = async (k, padrao) => (await loja().get(k, { type: 'json' })) ?? padrao;
@@ -71,11 +76,11 @@ export async function trocarCodigo(code) {
   const curto = await ig('oauth/access_token', { client_id: app, client_secret: segredo, redirect_uri: REDIRECT, code });
   const longo = await ig('oauth/access_token', { grant_type: 'fb_exchange_token', client_id: app, client_secret: segredo, fb_exchange_token: curto.access_token });
   const paginas = await ig('me/accounts', { fields: 'id,name,access_token,instagram_business_account{id,username}', limit: 50 }, longo.access_token);
-  const pagina = (paginas.data || []).find((p) => p.instagram_business_account);
-  if (!pagina) throw new Error('Nenhuma Página do Facebook com conta profissional do Instagram foi autorizada. Na tela da Meta, selecione a Página ligada ao @juniorsturmer.');
+  const pagina = (paginas.data || []).find((p) => p.instagram_business_account && String(p.instagram_business_account.username || '').toLowerCase() === CONTA());
+  await apagarTudo();
+  if (!pagina) throw new Error(`A Página ligada ao @${CONTA()} não foi autorizada. Conecte de novo e, na tela da Meta, marque só a Página do @${CONTA()}.`);
   const dados = {
     token: pagina.access_token, // token da Página: não expira
-    tokenUsuario: longo.access_token,
     expiraEm: null,
     criadoEm: Date.now(),
     id: pagina.instagram_business_account.id,
@@ -183,6 +188,7 @@ const formato = (m) => (m.media_product_type === 'REELS' ? 'reel' : m.media_prod
 export async function coletar() {
   let t = await lerToken();
   if (!t) return { ok: false, motivo: 'sem_token' };
+  if (!contaCerta(t)) { await apagarTudo(); return { ok: false, motivo: 'conta_errada_apagada' }; }
   const erros = {};
   const agora = Date.now();
   const hoje = hojeSP();
@@ -275,6 +281,7 @@ export async function coletar() {
   for (const [id, s] of Object.entries(stories)) if (new Date(s.timestamp).getTime() < agora - 200 * 864e5) delete stories[id];
   await salvarJSON('stories', stories);
 
+  if (!contaCerta(await lerToken())) { await apagarTudo(); return { ok: false, motivo: 'conta_trocada' }; }
   await salvarJSON('coleta', { em: agora, erros, usuario: perfil.username });
   return { ok: true, erros };
 }
@@ -291,9 +298,14 @@ export async function dispararColeta(origem) {
 export async function dadosPainel(periodo, diasSerie) {
   const t = await lerToken();
   if (!t) return { conectado: false };
+  if (!contaCerta(t)) { await apagarTudo(); return { conectado: false, contaErradaApagada: true }; }
   const [perfil, periodos, serie, midias, stories, meses, coleta] = await Promise.all([
     lerJSON('perfil', null), lerJSON('periodos', {}), lerJSON('serie', {}), lerJSON('midias', {}), lerJSON('stories', {}), lerJSON('meses', null), lerJSON('coleta', null),
   ]);
+  if ((perfil && String(perfil.usuario || '').toLowerCase() !== CONTA()) || (coleta && coleta.usuario && String(coleta.usuario).toLowerCase() !== CONTA())) {
+    await Promise.all(CHAVES.filter((k) => k !== 'token').map((k) => loja().delete(k)));
+    return { conectado: true, usuario: t.usuario, perfil: null, periodo: null, mes: null, serie: { alcance: [], novos: [] }, midias: [], stories: [], meses: null, coleta: null };
+  }
   const hoje = hojeSP();
   const dias = Array.from({ length: diasSerie }, (_, k) => ymd(menos(hoje, diasSerie - 1 - k)));
   const corte = ymd(menos(hoje, 200));

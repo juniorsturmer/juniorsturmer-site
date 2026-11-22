@@ -645,8 +645,9 @@
         const cresc = razao(liq.atual, segIni), crescA = razao(liq.ant, segIni - liq.ant);
         const metas = metasDoMes();
         const I = DADOS && DADOS.instagram;
-        const conectar = !G.real ? `<div class="card mt-0 conectar">${cardH('Conectar o Instagram', DADOS && DADOS.conexoes && DADOS.conexoes.instagramApp ? 'Clique para autorizar a leitura dos dados na tela da Meta. Os números abaixo ainda são exemplo.' : 'Falta cadastrar o app do Instagram no Netlify. Os números abaixo ainda são exemplo.', 'ig_conectar', 'instagram', DADOS && DADOS.conexoes && DADOS.conexoes.instagramApp ? '<a class="btn dark" href="/api/painel/instagram/conectar">Conectar Instagram</a>' : '')}</div>` : '';
-        const status = G.real ? `<div class="card-s" style="margin:-6px 0 14px">@${esc(I.usuario || '')} · ${I.coleta ? `atualizado ${horaColeta(I.coleta.em)}` : 'primeira coleta em andamento'} · <button class="lnk" type="button" id="ig-atualizar">Atualizar agora</button></div>` : '';
+        const conectar = !G.real && !(I && I.conectado) ? `<div class="card mt-0 conectar">${cardH('Conectar o Instagram', DADOS && DADOS.conexoes && DADOS.conexoes.instagramApp ? 'Clique para autorizar a leitura dos dados na tela da Meta. Os números abaixo ainda são exemplo.' : 'Falta cadastrar o app do Instagram no Netlify. Os números abaixo ainda são exemplo.', 'ig_conectar', 'instagram', DADOS && DADOS.conexoes && DADOS.conexoes.instagramApp ? '<a class="btn dark" href="/api/painel/instagram/conectar">Conectar Instagram</a>' : '')}</div>` : '';
+        const conectadoSemDados = !G.real && I && I.conectado;
+        const status = (G.real || conectadoSemDados) ? `<div class="card-s" style="margin:-6px 0 14px">@${esc(I.usuario || '')} · ${I.coleta ? `atualizado ${horaColeta(I.coleta.em)}` : 'primeira coleta em andamento, volte em alguns minutos'} · <button class="lnk" type="button" id="ig-atualizar">Atualizar agora</button> · <button class="lnk" type="button" id="ig-desconectar">Desconectar</button></div>` : '';
         return `${conectar}${status}
         <div class="grid g-kpi">
           ${kpi({ ico: 'pessoas', label: 'Seguidores', tip: 'ig_seguidores', valor: n(G.seguidores), delta: delta(G.seguidores, segIni), nota: `vs início do período (${n(segIni)})` })}
@@ -776,6 +777,12 @@
     document.title = `${v.nome} | Painel de métricas`;
     $('#view').innerHTML = v.html();
     ativarGraficos();
+    const bd = $('#ig-desconectar');
+    if (bd) bd.addEventListener('click', async () => {
+      bd.disabled = true;
+      try { await fetch('/api/painel/instagram/desconectar', { method: 'POST', credentials: 'same-origin' }); } catch (e) { /* segue */ }
+      DADOS = null; carregar();
+    });
     const bt = $('#ig-atualizar');
     if (bt) bt.addEventListener('click', async () => {
       bt.disabled = true; bt.textContent = 'coletando, volte em alguns minutos';

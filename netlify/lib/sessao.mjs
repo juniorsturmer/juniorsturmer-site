@@ -43,6 +43,18 @@ async function assinar(texto, senha) {
   return b64url(await crypto.subtle.sign('HMAC', k, enc.encode(texto)));
 }
 
+// Assinatura genérica (usada no "state" do login do Instagram e na chamada interna da coleta)
+export async function assinarTexto(texto) {
+  const senha = env('DASH_PASSWORD');
+  if (!senha) throw new Error('DASH_PASSWORD não configurada');
+  return assinar(texto, senha);
+}
+export async function conferirAssinatura(texto, sig) {
+  const senha = env('DASH_PASSWORD');
+  if (!senha || !sig) return false;
+  return iguais(await assinar(texto, senha), sig);
+}
+
 export async function criarToken(senha) {
   const validade = Math.floor(Date.now() / 1000) + DIAS_SESSAO * 86400;
   return `${validade}.${await assinar(String(validade), senha)}`;

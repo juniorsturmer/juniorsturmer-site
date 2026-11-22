@@ -265,3 +265,13 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 @media (max-width: 520px) {
   .g-kpi, .g-kpi-4, .g-kpi-5, .g-2, .posts { grid-template-columns: 1fr; }
 }
+
+/* instagram real */
+.thumb.com-img { background: #ecece7; }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.thumb.com-img .fmt { z-index: 1; }
+.post-t a { color: inherit; text-decoration: none; }
+.post-t a:hover { text-decoration: underline; }
+.lnk { color: var(--ink); text-decoration: underline; font-size: inherit; padding: 0; }
+.lnk[disabled] { color: var(--muted); text-decoration: none; cursor: default; }
+.conectar { margin-bottom: 16px; }

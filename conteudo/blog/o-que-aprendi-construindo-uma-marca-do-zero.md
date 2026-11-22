@@ -1,13 +1,15 @@
 ---
 titulo: O que aprendi construindo uma marca do zero
-resumo: Desde 2019 construo o marketing e o branding da TruckPag. Cinco aprendizados de quem viu uma marca nascer sem investidor e crescer dentro de um mercado tradicional.
+resumo: Desde 2019 construo o marketing e o branding da TruckPag. Cinco
+  aprendizados de quem viu uma marca nascer sem investidor e crescer dentro de
+  um mercado tradicional.
 data: 2026-10-21
 categoria: Bastidores
-capa: /blog/imagens/capa-marca-do-zero.jpg
-capa_alt: Blocos arredondados formando um sistema visual com as letras Aa e a expressão do zero
+capa: /blog/imagens/img1667-2.jpg
+capa_alt: Blocos arredondados formando um sistema visual com as letras Aa e a
+  expressão do zero
 destaque: false
 rascunho: false
-linkedin: ""
 ---
 Em 2019 comecei a construir do zero o marketing e o branding da TruckPag, uma fintech de meios de pagamento para o transporte. Não tinha investidor, não tinha verba de lançamento e não tinha um manual de marca esperando na gaveta. Tinha um mercado tradicional, desconfiado de novidade, e a missão de fazer uma empresa nova ser levada a sério.
 

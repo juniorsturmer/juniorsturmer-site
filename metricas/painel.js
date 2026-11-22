@@ -106,7 +106,7 @@
     pr_marcos: ['Os marcos que você definiu para se sentir um nome relevante.', 'Marcados como feitos quando uma menção confirmada atende o marco.'],
     pr_mencoes: ['Menções confirmadas por você.', 'Vêm do Google Alerts (depois da sua revisão) ou do cadastro manual.'],
     pr_revisar: ['Possíveis menções encontradas pelo Google Alerts.', 'O feed traz tudo que cita os nomes monitorados. Você confirma o que é você e escolhe o tipo, que define os pontos.'],
-    ig_conectar: ['Liga o painel à sua conta profissional do Instagram.', 'Você autoriza só a leitura (perfil e estatísticas) na tela do Instagram. O acesso fica guardado no servidor, se renova sozinho e pode ser removido no Instagram em Configurações > Apps e sites.'],
+    ig_conectar: ['Liga o painel à sua conta profissional do Instagram.', 'Você autoriza só a leitura (perfil e estatísticas) na tela da Meta, escolhendo a Página ligada ao @juniorsturmer. O acesso fica guardado no servidor, não expira e pode ser removido no Facebook em Configurações > Integrações comerciais.'],
     pr_nomes: ['Nomes que o Google Alerts monitora.', 'Junior Sturmer, Jacir Sturmer e Selzler Sturmer pegam todas as formas do seu nome completo. "Jacir Junior" é comum demais, então só conta junto com TruckPag.'],
   };
   const i = (k) => (TIPS[k] ? `<button class="i" type="button" data-tip="${k}" aria-label="O que é este indicador">i</button>` : '');
@@ -645,7 +645,7 @@
         const cresc = razao(liq.atual, segIni), crescA = razao(liq.ant, segIni - liq.ant);
         const metas = metasDoMes();
         const I = DADOS && DADOS.instagram;
-        const conectar = !G.real ? `<div class="card mt-0 conectar">${cardH('Conectar o Instagram', DADOS && DADOS.conexoes && DADOS.conexoes.instagramApp ? 'Clique para autorizar a leitura dos dados na tela do Instagram. Os números abaixo ainda são exemplo.' : 'Falta cadastrar o app do Instagram no Netlify. Os números abaixo ainda são exemplo.', 'ig_conectar', 'instagram', DADOS && DADOS.conexoes && DADOS.conexoes.instagramApp ? '<a class="btn dark" href="/api/painel/instagram/conectar">Conectar Instagram</a>' : '')}</div>` : '';
+        const conectar = !G.real ? `<div class="card mt-0 conectar">${cardH('Conectar o Instagram', DADOS && DADOS.conexoes && DADOS.conexoes.instagramApp ? 'Clique para autorizar a leitura dos dados na tela da Meta. Os números abaixo ainda são exemplo.' : 'Falta cadastrar o app do Instagram no Netlify. Os números abaixo ainda são exemplo.', 'ig_conectar', 'instagram', DADOS && DADOS.conexoes && DADOS.conexoes.instagramApp ? '<a class="btn dark" href="/api/painel/instagram/conectar">Conectar Instagram</a>' : '')}</div>` : '';
         const status = G.real ? `<div class="card-s" style="margin:-6px 0 14px">@${esc(I.usuario || '')} · ${I.coleta ? `atualizado ${horaColeta(I.coleta.em)}` : 'primeira coleta em andamento'} · <button class="lnk" type="button" id="ig-atualizar">Atualizar agora</button></div>` : '';
         return `${conectar}${status}
         <div class="grid g-kpi">

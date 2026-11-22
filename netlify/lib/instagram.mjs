@@ -1,13 +1,13 @@
-// Instagram do painel /metricas: login pelo Instagram (OAuth), token guardado no Netlify Blobs
+// Instagram do painel /metricas: Login do Facebook para Empresas (OAuth), token guardado no Netlify Blobs
 // e coleta dos dados (perfil, insights da conta, posts, reels e stories).
-// Ninguém copia token: o painel recebe a permissão direto da Meta e renova sozinho.
+// Ninguém copia token: o painel recebe a permissão direto da Meta. O token da Página
+// gerado a partir de um token de usuário de longa duração não expira.
 import { getStore } from '@netlify/blobs';
 import { env, assinarTexto } from './sessao.mjs';
 
 const VERSAO = 'v25.0';
-const GRAPH = `https://graph.instagram.com/${VERSAO}`;
+const GRAPH = `https://graph.facebook.com/${VERSAO}`;
 export const REDIRECT = 'https://juniorsturmer.com.br/api/painel/instagram/retorno';
-export const ESCOPOS = 'instagram_business_basic,instagram_business_manage_insights';
 
 export const loja = () => getStore('painel-instagram');
 const lerJSON = async (k, padrao) => (await loja().get(k, { type: 'json' })) ?? padrao;
@@ -44,52 +44,49 @@ async function ig(caminho, params, token) {
   if (token) u.searchParams.set('access_token', token);
   const r = await fetch(u);
   const j = await r.json().catch(() => ({}));
-  if (!r.ok || j.error) throw new Error((j.error && (j.error.error_user_msg || j.error.message)) || `HTTP ${r.status}`);
+  if (!r.ok || j.error) {
+    const msg = (j.error && (j.error.error_user_msg || j.error.message)) || `HTTP ${r.status}`;
+    if (j.error && j.error.code === 190) await salvarJSON('token-invalido', { em: Date.now(), msg });
+    throw new Error(msg);
+  }
   return j;
 }
 
 // ---------- login (OAuth) ----------
 export function urlAutorizacao(state) {
-  const u = new URL('https://www.instagram.com/oauth/authorize');
-  u.searchParams.set('client_id', env('INSTAGRAM_APP_ID'));
+  const u = new URL(`https://www.facebook.com/${VERSAO}/dialog/oauth`);
+  u.searchParams.set('client_id', env('META_APP_ID'));
   u.searchParams.set('redirect_uri', REDIRECT);
+  u.searchParams.set('config_id', env('META_CONFIG_ID'));
   u.searchParams.set('response_type', 'code');
-  u.searchParams.set('scope', ESCOPOS);
+  u.searchParams.set('override_default_response_type', 'true');
   u.searchParams.set('state', state);
-  u.searchParams.set('enable_fb_login', '0');
-  u.searchParams.set('force_reauth', 'true');
   return u.toString();
 }
 
 export async function trocarCodigo(code) {
-  const segredo = env('INSTAGRAM_APP_SECRET');
-  if (!segredo) throw new Error('INSTAGRAM_APP_SECRET não configurada no Netlify');
-  const r = await fetch('https://api.instagram.com/oauth/access_token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ client_id: env('INSTAGRAM_APP_ID'), client_secret: segredo, grant_type: 'authorization_code', redirect_uri: REDIRECT, code }),
-  });
-  const curto = await r.json().catch(() => ({}));
-  if (!r.ok || !curto.access_token) throw new Error(curto.error_message || (curto.error && curto.error.message) || `HTTP ${r.status}`);
-  const longo = await ig('https://graph.instagram.com/access_token', { grant_type: 'ig_exchange_token', client_secret: segredo, access_token: curto.access_token });
-  const dados = { token: longo.access_token, expiraEm: Date.now() + (longo.expires_in || 5184000) * 1000, criadoEm: Date.now() };
-  const eu = await ig('me', { fields: 'id,user_id,username' }, dados.token);
-  dados.id = eu.id; dados.usuario = eu.username;
+  const segredo = env('META_APP_SECRET');
+  if (!segredo) throw new Error('META_APP_SECRET não configurada no Netlify');
+  const app = env('META_APP_ID');
+  const curto = await ig('oauth/access_token', { client_id: app, client_secret: segredo, redirect_uri: REDIRECT, code });
+  const longo = await ig('oauth/access_token', { grant_type: 'fb_exchange_token', client_id: app, client_secret: segredo, fb_exchange_token: curto.access_token });
+  const paginas = await ig('me/accounts', { fields: 'id,name,access_token,instagram_business_account{id,username}', limit: 50 }, longo.access_token);
+  const pagina = (paginas.data || []).find((p) => p.instagram_business_account);
+  if (!pagina) throw new Error('Nenhuma Página do Facebook com conta profissional do Instagram foi autorizada. Na tela da Meta, selecione a Página ligada ao @juniorsturmer.');
+  const dados = {
+    token: pagina.access_token, // token da Página: não expira
+    tokenUsuario: longo.access_token,
+    expiraEm: null,
+    criadoEm: Date.now(),
+    id: pagina.instagram_business_account.id,
+    usuario: pagina.instagram_business_account.username,
+    pagina: { id: pagina.id, nome: pagina.name },
+  };
   await salvarJSON('token', dados);
   return dados;
 }
 
 export async function lerToken() { return lerJSON('token', null); }
-
-async function renovarSePreciso(t) {
-  const faltam = t.expiraEm - Date.now();
-  const idade = Date.now() - (t.renovadoEm || t.criadoEm || 0);
-  if (faltam > 20 * 864e5 || idade < 864e5) return t;
-  const j = await ig('https://graph.instagram.com/refresh_access_token', { grant_type: 'ig_refresh_token', access_token: t.token });
-  const novo = { ...t, token: j.access_token, expiraEm: Date.now() + (j.expires_in || 5184000) * 1000, renovadoEm: Date.now() };
-  await salvarJSON('token', novo);
-  return novo;
-}
 
 // ---------- insights da conta ----------
 // janelas de no máximo 30 dias, que é o limite da API
@@ -189,10 +186,9 @@ export async function coletar() {
   const erros = {};
   const agora = Date.now();
   const hoje = hojeSP();
-  try { t = await renovarSePreciso(t); } catch (e) { erros.renovacao = e.message; }
 
   // perfil e foto diária dos seguidores
-  const perfil = await ig('me', { fields: 'id,user_id,username,followers_count,follows_count,media_count,profile_picture_url' }, t.token);
+  const perfil = await ig(t.id, { fields: 'id,username,followers_count,follows_count,media_count,profile_picture_url' }, t.token);
   await salvarJSON('perfil', { usuario: perfil.username, seguidores: perfil.followers_count, seguindo: perfil.follows_count, posts: perfil.media_count, foto: perfil.profile_picture_url, em: agora });
   const fotos = await lerJSON('seguidores', {});
   fotos[ymd(hoje)] = perfil.followers_count;
@@ -241,7 +237,7 @@ export async function coletar() {
   // posts e reels dos últimos 200 dias
   const midias = await lerJSON('midias', {});
   const corte = agora - 200 * 864e5;
-  let url = 'me/media', params = { fields: CAMPOS_MIDIA, limit: 50 }, paginas = 0;
+  let url = `${t.id}/media`, params = { fields: CAMPOS_MIDIA, limit: 50 }, paginas = 0;
   const vistos = [];
   while (url && paginas < 5) {
     const j = await ig(url, params, url.startsWith('http') ? undefined : t.token);
@@ -270,7 +266,7 @@ export async function coletar() {
   // stories (a Meta só libera por 24 h, por isso a coleta é de hora em hora)
   const stories = await lerJSON('stories', {});
   try {
-    const j = await ig('me/stories', { fields: 'id,media_type,media_product_type,timestamp,permalink,thumbnail_url,media_url' }, t.token);
+    const j = await ig(`${t.id}/stories`, { fields: 'id,media_type,media_product_type,timestamp,permalink,thumbnail_url,media_url' }, t.token);
     await emLotes(j.data || [], 5, async (s) => {
       const ins = await insightsMidia(t, { ...s, media_product_type: 'STORY' }, 'STORY', erros);
       if (Object.keys(ins).length) stories[s.id] = { id: s.id, timestamp: s.timestamp, dia: diaSP(s.timestamp), media_type: s.media_type, insights: ins, em: agora };

@@ -214,7 +214,7 @@ export default async (req) => {
     ga4: Boolean(env('GA4_PROPERTY_ID') && env('GOOGLE_SERVICE_ACCOUNT_JSON')),
     searchConsole: Boolean(env('GOOGLE_SERVICE_ACCOUNT_JSON')),
     instagram: false,
-    instagramApp: Boolean(env('INSTAGRAM_APP_ID') && env('INSTAGRAM_APP_SECRET')),
+    instagramApp: Boolean(env('META_APP_ID') && env('META_APP_SECRET') && env('META_CONFIG_ID')),
     alerts: Boolean(env('ALERTS_FEED_URLS')),
   };
 

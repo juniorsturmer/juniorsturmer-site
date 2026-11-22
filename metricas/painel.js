@@ -153,15 +153,23 @@
     { t: 'Marketing de baixo custo começa no que você já paga', c: 'Estratégia', l: 14, comp: 50, tempo: 170, sh: 0, ct: 0, gerou: 0 },
   ];
   const PESOS = { comp: 0.25, tempo: 0.2, l: 0.2, sh: 0.15, ct: 0.2 };
-  (function calcularIndice() {
+  function calcularIndice() {
     const validos = POSTS_BLOG.filter((p) => p.l >= 20);
     const media = {};
     for (const k of Object.keys(PESOS)) media[k] = soma(validos.map((p) => p[k])) / validos.length || 1;
     for (const p of POSTS_BLOG) {
       p.valido = p.l >= 20;
-      p.indice = p.valido ? Math.round(soma(Object.keys(PESOS).map((k) => PESOS[k] * clamp((50 * p[k]) / media[k], 0, 100)))) : null;
+      p.indice = p.valido ? Math.round(soma(Object.keys(PESOS).map((k) => PESOS[k] * clamp((50 * p[k]) / (media[k] || 1), 0, 100)))) : null;
     }
-  })();
+  }
+  calcularIndice();
+
+  // ---------- dados reais (preenchidos por /api/painel/dados) ----------
+  let DADOS = null;
+  let LISTA_POSTS = null;
+  const REAL = { site: false, blog: false, buscas: false, agora: false, referencias: false };
+  const real = (k) => REAL[k];
+  const tagExemplo = '<span class="tag alerta" title="Esta parte ainda usa dados de exemplo">exemplo</span>';
 
   const POSTS_IG = [
     { t: 'O logo é a última coisa que eu desenho', f: 'Reel', th: 't2', alc: 9840, env: 4.1, sal: 3.2, cur: 6.8, d: 3 },
@@ -411,7 +419,9 @@
     const metaLeads = Math.max(2, Math.round(ld.media * 1.15));
     const semanas = Math.round((diasMes / 7) * 10) / 10;
     const metaBlog = Math.round(3 * semanas);
-    const blogFeitos = Math.min(metaBlog, Math.round((dia / diasMes) * metaBlog * 0.82));
+    const blogFeitos = LISTA_POSTS
+      ? LISTA_POSTS.filter((a) => { const d = new Date(a.data + 'T12:00:00'); return d.getFullYear() === HOJE.getFullYear() && d.getMonth() === HOJE.getMonth(); }).length
+      : Math.min(metaBlog, Math.round((dia / diasMes) * metaBlog * 0.82));
     const metaIg = 14;
     const igFeitos = Math.round((dia / diasMes) * 13 * 0.96);
     return {
@@ -427,7 +437,10 @@
     geral: {
       nome: 'Visão geral', ico: 'geral', sub: 'Site, blog, Instagram e presença em uma tela.',
       html() {
-        const v = total('visitas'), l = total('leads'), a = total('alcance'), it = total('interacoes'), liq = total('liquidos');
+        const R = real('site') ? DADOS.site : null;
+        const v = R ? { atual: R.atual.usuarios, ant: R.ant.usuarios } : total('visitas');
+        const l = R ? { atual: R.atual.leads, ant: R.ant.leads } : total('leads');
+        const a = total('alcance'), it = total('interacoes'), liq = total('liquidos');
         const j = janela();
         const itA = (soma(fatia(S.interacoes, j.ini, j.fim)) / a.atual) * 100;
         const itP = (soma(fatia(S.interacoes, j.pIni, j.pFim)) / a.ant) * 100;
@@ -439,7 +452,7 @@
           ${kpi({ ico: 'faisca', label: 'Engajamento por alcance', tip: 'ig_engajamento', valor: pct(itA), delta: deltaPts(itA, itP) })}
           ${kpi({ ico: 'site', label: 'Visitas ao site', tip: 'site_visitas', valor: n(v.atual), delta: delta(v.atual, v.ant) })}
           ${kpi({ ico: 'alvo', label: 'Leads pelo site', tip: 'site_leads', valor: n(l.atual), delta: delta(l.atual, l.ant) })}
-          ${kpi({ ico: 'presenca', label: 'Nota de Presença', tip: 'presenca', valor: `${PRESENCA.nota}<small>/100</small>`, delta: deltaPts(PRESENCA.nota, PRESENCA.nota90, ' pts'), nota: 'vs 90 dias anteriores' })}
+          ${kpi({ ico: 'presenca', label: 'Nota de Presença', tip: 'presenca', valor: `${PRESENCA.nota}<small>/100</small>`, delta: deltaPresenca(), nota: PRESENCA.nota90 === null ? 'sem comparação ainda' : 'vs 90 dias anteriores' })}
         </div>
         <div class="grid g-main mt">
           ${graficoCard('geral', ['visitas', 'leads', 'alcance', 'envios'], 'Desempenho', 'Evolução diária no período escolhido')}
@@ -449,9 +462,9 @@
         </div>
         <div class="card mt">${cardH('Top posts do Instagram', 'Ordenados por envios por alcance', 'top_ig', 'trofeu', '<a class="btn" href="#/instagram">Ver Instagram</a>')}${postsIg(POSTS_IG)}</div>
         <div class="grid g-main mt">
-          <div class="card">${cardH('Top 5 do blog', 'Índice de Aderência no período', 'top_blog', 'livro', '<a class="btn" href="#/blog">Ver ranking completo</a>')}${rankingBlog(5, true)}</div>
+          <div class="card">${cardH('Top 5 do blog', 'Índice de Aderência no período', 'top_blog', 'livro', '<a class="btn" href="#/blog">Ver ranking completo</a>')}${POSTS_BLOG.some((p) => p.valido) ? rankingBlog(5, true) : '<div class="card-s">Nenhum artigo com 20 leitores ou mais no período.</div>'}</div>
           <div class="card">${cardH('Nota de Presença', 'Junior Sturmer nas redes e na web', 'presenca', 'presenca', '<a class="btn" href="#/presenca">Detalhes</a>')}
-            <div class="ring-w">${anel(PRESENCA.nota)}<div><div class="faixa-n">${faixa(PRESENCA.nota)}</div><div class="card-s">${deltaPts(PRESENCA.nota, PRESENCA.nota90, ' pts')} em relação aos 90 dias anteriores</div>
+            <div class="ring-w">${anel(PRESENCA.nota)}<div><div class="faixa-n">${faixa(PRESENCA.nota)}</div><div class="card-s">${deltaPresenca()} ${PRESENCA.nota90 === null ? 'sem comparação ainda' : 'em relação aos 90 dias anteriores'}</div>
             <div class="faixas">${FAIXAS.map((_, k) => `<span class="${k <= FAIXAS.indexOf(faixa(PRESENCA.nota)) ? 'on' : ''}"></span>`).join('')}</div></div></div>
           </div>
         </div>`;
@@ -461,17 +474,22 @@
     site: {
       nome: 'Site', ico: 'site', sub: 'juniorsturmer.com.br no GA4 e no Search Console.',
       html() {
-        const v = total('visitas'), l = total('leads'), c = total('cta');
-        const sessoes = { atual: Math.round(v.atual * 1.34), ant: Math.round(v.ant * 1.31) };
-        const conv = (l.atual / v.atual) * 100, convA = (l.ant / v.ant) * 100;
-        const origem = [['Google', 41], ['LinkedIn', 24], ['Instagram', 17], ['Direto', 13], ['Outros sites', 5]];
-        const paginas = [['Início', '/', 38], ['Blog', '/blog/', 19], ['Serviços', '/servicos/', 14], ['Minha história', '/minha-historia/', 11], ['Contato', '/contato/', 8]];
-        const buscas = [['junior sturmer', 38, 96, 1.2], ['estrategista de marca cascavel', 6, 140, 6.4], ['posicionamento de marca', 4, 820, 18.3], ['território de marca', 3, 210, 9.1], ['marca não é logo', 2, 75, 7.7]];
+        const R = real('site') ? DADOS.site : null;
+        const v = R ? { atual: R.atual.usuarios, ant: R.ant.usuarios } : total('visitas');
+        const l = R ? { atual: R.atual.leads, ant: R.ant.leads } : total('leads');
+        const c = R ? { atual: R.atual.cta, ant: R.ant.cta } : total('cta');
+        const sessoes = R ? { atual: R.atual.sessoes, ant: R.ant.sessoes } : { atual: Math.round(v.atual * 1.34), ant: Math.round(v.ant * 1.31) };
+        const eng = R ? { atual: R.atual.usuarios ? R.atual.engajamento / R.atual.usuarios : 0, ant: R.ant.usuarios ? R.ant.engajamento / R.ant.usuarios : 0 } : { atual: 84, ant: 77 };
+        const conv = v.atual ? (l.atual / v.atual) * 100 : 0, convA = v.ant ? (l.ant / v.ant) * 100 : 0;
+        const origem = R ? R.origem : [['Google e buscadores', 41], ['Redes sociais', 41], ['Direto', 13], ['Outros sites', 5]];
+        const paginas = real('site') && DADOS.paginas ? DADOS.paginas.map(([u, pc]) => [nomePagina(u), u, pc]) : [['Início', '/', 38], ['Blog', '/blog/', 19], ['Serviços', '/servicos/', 14], ['Minha história', '/minha-historia/', 11], ['Contato', '/contato/', 8]];
+        const buscas = real('buscas') ? DADOS.buscas.top : [['junior sturmer', 38, 96, 1.2], ['estrategista de marca cascavel', 6, 140, 6.4], ['posicionamento de marca', 4, 820, 18.3], ['território de marca', 3, 210, 9.1], ['marca não é logo', 2, 75, 7.7]];
+        const agora = real('agora') ? DADOS.agora : { usuarios: 3, paginas: [['Sua marca não é o seu logo | Além do Logo', 1], ['Serviços | Junior Sturmer', 1], ['Junior Sturmer | Estrategista de marca', 1]] };
         return `
         <div class="grid g-kpi">
           ${kpi({ ico: 'pessoas', label: 'Usuários', tip: 'site_visitas', valor: n(v.atual), delta: delta(v.atual, v.ant) })}
           ${kpi({ ico: 'site', label: 'Sessões', tip: 'site_sessoes', valor: n(sessoes.atual), delta: delta(sessoes.atual, sessoes.ant) })}
-          ${kpi({ ico: 'relogio', label: 'Tempo médio de engajamento', tip: 'site_tempo', valor: tempo(84), delta: delta(84, 77) })}
+          ${kpi({ ico: 'relogio', label: 'Tempo médio de engajamento', tip: 'site_tempo', valor: tempo(eng.atual), delta: delta(eng.atual, eng.ant) })}
           ${kpi({ ico: 'alvo', label: 'Leads', tip: 'site_leads', valor: n(l.atual), delta: delta(l.atual, l.ant) })}
           ${kpi({ ico: 'faisca', label: 'Taxa de conversão', tip: 'site_conv', valor: pct(conv), delta: deltaPts(conv, convA) })}
           ${kpi({ ico: 'clique', label: 'Cliques em contato', tip: 'site_cta', valor: n(c.atual), delta: delta(c.atual, c.ant) })}
@@ -479,20 +497,15 @@
         <div class="grid g-main mt">
           ${graficoCard('site', ['visitas', 'leads', 'cta'], 'Visitas e conversão', 'Evolução diária no período escolhido')}
           <div class="card agora">${cardH('<span class="pulse"></span> Agora no site', 'Últimos 30 minutos', 'agora')}
-            <div class="kpi-v" style="font-size:44px">3</div><div class="card-s" style="margin:6px 0 14px">pessoas navegando</div>
-            <div class="lst">
-              <div class="lst-i"><div>/blog/sua-marca-nao-e-o-seu-logo/<small>LinkedIn</small></div><div class="r">1</div></div>
-              <div class="lst-i"><div>/servicos/<small>Google</small></div><div class="r">1</div></div>
-              <div class="lst-i"><div>/<small>Instagram</small></div><div class="r">1</div></div>
-            </div>
+            <div id="agora-box">${agoraHtml(agora)}</div>
           </div>
         </div>
         <div class="grid g-3 mt">
-          <div class="card">${cardH('Origem das visitas', '% dos usuários', 'site_origem')}${origem.map(([o, p]) => `<div class="hbar"><span>${o}</span><div class="bar"><span style="width:${p * 2}%"></span></div><b>${p}%</b></div>`).join('')}</div>
-          <div class="card">${cardH('Páginas mais vistas', '% das visualizações', 'site_paginas')}<div class="lst">${paginas.map(([t, u, p]) => `<div class="lst-i"><div>${t}<small>${u}</small></div><div class="r"><b>${p}%</b></div></div>`).join('')}</div></div>
-          <div class="card">${cardH('Buscas no Google', 'Search Console', 'site_buscas', 'lupa')}
+          <div class="card">${cardH('Origem das visitas', '% dos usuários', 'site_origem')}${origem.length ? origem.map(([o, p]) => `<div class="hbar"><span>${esc(o)}</span><div class="bar"><span style="width:${p}%"></span></div><b>${p}%</b></div>`).join('') : '<div class="card-s">Sem visitas no período.</div>'}</div>
+          <div class="card">${cardH('Páginas mais vistas', '% das visualizações', 'site_paginas')}<div class="lst">${paginas.map(([t, u, p]) => `<div class="lst-i"><div>${esc(t)}<small>${esc(u)}</small></div><div class="r"><b>${p}%</b></div></div>`).join('')}</div></div>
+          <div class="card">${cardH('Buscas no Google', real('buscas') ? 'Search Console · 2 a 3 dias de atraso' : 'Search Console', 'site_buscas', 'lupa')}
             <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Busca</th><th class="n">Cliques</th><th class="n">Impr.</th><th class="n">Posição</th></tr></thead><tbody>
-            ${buscas.map(([b, c2, im, po]) => `<tr><td>${b}</td><td class="n">${c2}</td><td class="n">${n(im)}</td><td class="n">${n(po, 1)}</td></tr>`).join('')}
+            ${buscas.length ? '' : '<tr><td colspan="4" class="card-s">Ainda sem buscas registradas no período.</td></tr>'}${buscas.map(([b, c2, im, po]) => `<tr><td>${esc(b)}</td><td class="n">${c2}</td><td class="n">${n(im)}</td><td class="n">${n(po, 1)}</td></tr>`).join('')}
             </tbody></table></div></div>
         </div>`;
       },
@@ -502,7 +515,8 @@
       nome: 'Blog', ico: 'blog', sub: 'Além do Logo: o que prende, espalha e gera contato.',
       html() {
         const validos = POSTS_BLOG.filter((p) => p.valido);
-        const leitores = soma(POSTS_BLOG.map((p) => p.l));
+        const RB = real('blog') ? DADOS.blog : null;
+        const leitores = RB ? RB.leitores : soma(POSTS_BLOG.map((p) => p.l));
         const comp = soma(validos.map((p) => p.comp * p.l)) / soma(validos.map((p) => p.l));
         const tmp = soma(validos.map((p) => p.tempo * p.l)) / soma(validos.map((p) => p.l));
         const metas = metasDoMes();
@@ -512,24 +526,24 @@
         const ord = [...validos].sort((a, b) => b.indice - a.indice);
         const mediaComp = soma(validos.map((p) => p.comp)) / validos.length;
         const repetir = ord.slice(0, 3).filter((p) => p.comp > mediaComp);
-        const pior = ord[ord.length - 1];
+        const pior = ord[ord.length - 1] || null;
         const gerou = POSTS_BLOG.filter((p) => p.gerou > 0).sort((a, b) => b.gerou - a.gerou);
         return `
         <div class="grid g-kpi-4">
-          ${kpi({ ico: 'pessoas', label: 'Leitores', tip: 'blog_leitores', valor: n(leitores), delta: delta(leitores, 1290) })}
-          ${kpi({ ico: 'livro', label: 'Leitura completa média', tip: 'blog_completa', valor: pct(comp, 0), delta: deltaPts(comp, 51.2) })}
-          ${kpi({ ico: 'relogio', label: 'Tempo médio por leitor', tip: 'blog_tempo', valor: tempo(tmp), delta: delta(tmp, 181) })}
+          ${kpi({ ico: 'pessoas', label: 'Leitores', tip: 'blog_leitores', valor: n(leitores), delta: RB ? delta(leitores, RB.leitoresAnt) : delta(leitores, 1290) })}
+          ${kpi({ ico: 'livro', label: 'Leitura completa média', tip: 'blog_completa', valor: validos.length ? pct(comp, 0) : '–', delta: RB ? '' : deltaPts(comp, 51.2), nota: RB ? 'artigos com 20+ leitores' : undefined })}
+          ${kpi({ ico: 'relogio', label: 'Tempo médio por leitor', tip: 'blog_tempo', valor: validos.length ? tempo(tmp) : '–', delta: RB ? '' : delta(tmp, 181), nota: RB ? 'artigos com 20+ leitores' : undefined })}
           ${kpi({ ico: 'alvo', label: 'Posts publicados no mês', tip: 'blog_posts', valor: `${metas.blog.atual}<small>/${metas.blog.meta}</small>`, nota: 'meta de 3 por semana' })}
         </div>
-        <div class="card mt">${cardH('Ranking de aderência', 'Português e inglês somados por artigo · mínimo de 20 leitores', 'blog_indice', 'trofeu')}${rankingBlog()}
+        <div class="card mt">${cardH('Ranking de aderência', 'Português e inglês somados por artigo · mínimo de 20 leitores', 'blog_indice', 'trofeu')}${POSTS_BLOG.some((p) => p.valido) ? rankingBlog() : '<div class="card-s">Nenhum artigo com 20 leitores ou mais no período. Aumente o período no topo.</div>'}
           ${POSTS_BLOG.some((p) => !p.valido) ? `<div class="card-s" style="margin-top:10px">Fora do ranking por ter menos de 20 leitores: ${POSTS_BLOG.filter((p) => !p.valido).map((p) => esc(p.t)).join(', ')}.</div>` : ''}
         </div>
         <div class="grid g-3 mt">
           <div class="card">${cardH('Temas que mais prendem', 'Índice médio por categoria', 'blog_cat')}${catLista.map(([c, v, q]) => `<div class="hbar"><span>${c} <small style="color:#8c8c86">(${q})</small></span><div class="bar"><span style="width:${v}%"></span></div><b>${v}</b></div>`).join('')}</div>
-          <div class="card">${cardH('Posts que geraram contato', 'Leads que passaram pelo artigo', 'blog_gerou', 'alvo')}<div class="lst">${gerou.map((p) => `<div class="lst-i"><div>${esc(p.t)}<small>${esc(p.c)}</small></div><div class="r"><b>${p.gerou}</b> ${p.gerou > 1 ? 'leads' : 'lead'}</div></div>`).join('')}</div></div>
+          <div class="card">${cardH('Posts que geraram contato', 'Leads que passaram pelo artigo', 'blog_gerou', 'alvo')}${RB ? '<div class="callout"><b>Próxima etapa</b>Para saber qual artigo levou ao contato, o formulário vai passar a registrar o último artigo lido antes do envio.</div>' : `<div class="lst">${gerou.map((p) => `<div class="lst-i"><div>${esc(p.t)}<small>${esc(p.c)}</small></div><div class="r"><b>${p.gerou}</b> ${p.gerou > 1 ? 'leads' : 'lead'}</div></div>`).join('')}</div>`}</div>
           <div class="card">${cardH('Sinais para a pauta', 'O que repetir e o que revisar', 'blog_sinais', 'faisca')}
             <div class="callout"><b>Repetir o formato</b>${repetir.map((p) => esc(p.t)).join('; ') || 'Nenhum artigo no top 3 com leitura acima da média.'}</div>
-            <div class="callout mt"><b>Revisar</b>${esc(pior.t)} (índice ${pior.indice}). Teste outro título, resumo e capa antes de escrever mais sobre o tema.</div>
+            <div class="callout mt"><b>Revisar</b>${pior && ord.length > 1 ? `${esc(pior.t)} (índice ${pior.indice}). Teste outro título, resumo e capa antes de escrever mais sobre o tema.` : 'Ainda não há artigos suficientes com 20 leitores ou mais no período.'}</div>
           </div>
         </div>`;
       },
@@ -608,6 +622,7 @@
       nome: 'Presença', ico: 'presenca', sub: 'O quanto "Junior Sturmer" aparece e é citado fora dos seus canais.',
       html() {
         const P = PRESENCA;
+        atualizarPresenca();
         const citacoes = soma(P.ia.res.map((r) => soma(r)));
         return `
         <div class="grid g-main">
@@ -615,14 +630,14 @@
             <div class="ring-w">${anel(P.nota)}
               <div style="flex:1;min-width:0">
                 <div class="faixa-n">${faixa(P.nota)}</div>
-                <div class="card-s">${deltaPts(P.nota, P.nota90, ' pts')} em relação aos 90 dias anteriores</div>
+                <div class="card-s">${deltaPresenca()} ${PRESENCA.nota90 === null ? 'sem comparação ainda' : 'em relação aos 90 dias anteriores'}</div>
                 <div class="faixas">${FAIXAS.map((_, k) => `<span class="${k <= FAIXAS.indexOf(faixa(P.nota)) ? 'on' : ''}"></span>`).join('')}</div>
                 <div class="card-s" style="margin-top:6px">0 a 20 começando · 21 a 40 em construção · 41 a 60 reconhecido no nicho · 61 a 80 referência regional · 81 a 100 referência nacional</div>
               </div>
             </div>
             <div class="mt">
               <div class="card-t" style="font-size:13px;margin-bottom:4px">Composição da nota ${i('pr_escala')}</div>
-              ${P.comp.map((c) => `<div class="comp"><div><div class="comp-n">${c.nome} ${i(c.k)}</div><small>${c.det} · peso ${c.peso}%</small></div><div class="bar"><span style="width:${c.nota}%"></span></div><b class="tnum">${c.nota}</b></div>`).join('')}
+              ${P.comp.map((c) => `<div class="comp"><div><div class="comp-n">${c.nome} ${i(c.k)} ${c.real ? '' : tagExemplo}</div><small>${c.det} · peso ${c.peso}%</small></div><div class="bar"><span style="width:${c.nota}%"></span></div><b class="tnum">${c.nota}</b></div>`).join('')}
             </div>
           </div>
           <div class="card marcos">${cardH('Marcos de 12 meses', 'O que faria você se sentir um nome relevante', 'pr_marcos', 'trofeu')}
@@ -657,7 +672,7 @@
       periodo = b.dataset.p;
       try { localStorage.setItem('painel_periodo', periodo); } catch (err) { /* sem armazenamento */ }
       $('#periodo').querySelectorAll('button').forEach((x) => x.setAttribute('aria-selected', x === b));
-      render();
+      if (DADOS) carregar(); else render();
     });
     $('#hoje span:last-child').textContent = `${HOJE.getDate()} de ${MESES_L[HOJE.getMonth()]} de ${HOJE.getFullYear()}`;
   }
@@ -709,16 +724,84 @@
     const itens = [['ga4', 'GA4'], ['searchConsole', 'Search Console'], ['instagram', 'Instagram'], ['alerts', 'Google Alerts']];
     $('#conexoes').innerHTML = `<b>Conexões</b>${itens.map(([k, t]) => `<div><span class="st ${c && c[k] ? 'ok' : ''}"></span>${t}</div>`).join('')}`;
   }
-  async function carregar() {
-    let dados = { demo: true, conexoes: null };
-    try {
-      const r = await fetch('/api/painel/dados', { credentials: 'same-origin', cache: 'no-store' });
-      if (r.status === 401) { location.reload(); return; }
-      if (r.ok) dados = await r.json();
-    } catch (e) { /* sem API (teste local): segue com exemplo */ }
-    $('#demo').hidden = !dados.demo;
-    mostrarConexoes(dados.conexoes);
+  function nomePagina(u) {
+    const mapa = { '/': 'Início', '/en/': 'Home (EN)', '/blog/': 'Blog', '/en/blog/': 'Blog (EN)', '/servicos/': 'Serviços', '/minha-historia/': 'Minha história', '/contato/': 'Contato', '/obrigado/': 'Obrigado' };
+    if (mapa[u]) return mapa[u];
+    const post = LISTA_POSTS && LISTA_POSTS.find((a) => a.url === u || a.urlEn === u);
+    return post ? post.titulo : u;
   }
+  function agoraHtml(ag) {
+    return `<div class="kpi-v" style="font-size:44px">${n(ag.usuarios)}</div><div class="card-s" style="margin:6px 0 14px">${ag.usuarios === 1 ? 'pessoa navegando' : 'pessoas navegando'}</div>
+      <div class="lst">${ag.paginas.length ? ag.paginas.map(([t, q]) => `<div class="lst-i"><div>${esc(t)}</div><div class="r">${n(q)}</div></div>`).join('') : '<div class="lst-i"><div><small>Ninguém no site agora.</small></div></div>'}</div>`;
+  }
+  function deltaPresenca() {
+    return PRESENCA.nota90 === null ? '<span class="delta flat">1ª medição</span>' : deltaPts(PRESENCA.nota, PRESENCA.nota90, ' pts');
+  }
+  function atualizarPresenca() {
+    const nota = (v, meta) => Math.round(Math.min(100, Math.sqrt(Math.max(0, v) / meta) * 100));
+    const c = Object.fromEntries(PRESENCA.comp.map((x) => [x.k, x]));
+    if (real('buscas')) { const im = DADOS.buscas.marca90.impressoes; Object.assign(c.pr_busca, { real: true, nota: nota(im, 1500), det: `${n(im)} impressões em 90 dias` }); }
+    if (real('referencias')) { const d = DADOS.referencias.length; Object.assign(c.pr_sites, { real: true, nota: nota(d, 10), det: `${n(d)} ${d === 1 ? 'domínio' : 'domínios'} em 90 dias` }); }
+    PRESENCA.nota = Math.round(soma(PRESENCA.comp.map((x) => (x.peso / 100) * x.nota)));
+    if (PRESENCA.comp.some((x) => x.real)) PRESENCA.nota90 = null;
+  }
+  function aplicarDados() {
+    if (!DADOS) return;
+    REAL.site = Boolean(DADOS.site);
+    REAL.buscas = Boolean(DADOS.buscas);
+    REAL.agora = Boolean(DADOS.agora);
+    REAL.referencias = Boolean(DADOS.referencias);
+    if (REAL.site && DADOS.site.serie && DADOS.site.serie.visitas.length === DIAS) {
+      S.visitas = DADOS.site.serie.visitas; S.leads = DADOS.site.serie.leads; S.cta = DADOS.site.serie.cta;
+    }
+    if (DADOS.blog) {
+      REAL.blog = true;
+      const porId = Object.fromEntries(DADOS.blog.posts.map((p) => [p.id, p]));
+      const base = LISTA_POSTS ? LISTA_POSTS.map((a) => Object.assign({ id: a.id, t: a.titulo, c: a.categoria, l: 0, comp: 0, tempo: 0, sh: 0, ct: 0 }, porId[a.id] || {}, { t: a.titulo, c: a.categoria })) : DADOS.blog.posts;
+      POSTS_BLOG.length = 0;
+      base.forEach((p) => POSTS_BLOG.push(Object.assign({ gerou: 0 }, p)));
+      calcularIndice();
+    }
+    atualizarPresenca();
+  }
+  function avisos() {
+    const exemplo = [];
+    if (!REAL.site) exemplo.push('Site');
+    if (!REAL.blog) exemplo.push('Blog');
+    exemplo.push('Instagram');
+    exemplo.push('Presença (menções, marcações e IAs)');
+    const erros = DADOS && DADOS.erros ? Object.entries(DADOS.erros) : [];
+    const el = $('#demo');
+    el.hidden = false;
+    const tudo = !REAL.site && !REAL.blog;
+    el.innerHTML = `<span class="demo-dot" aria-hidden="true"></span><span>${tudo ? '<strong>Dados de exemplo.</strong> Os números reais entram conforme cada conexão for configurada no Netlify.' : `<strong>Dados de exemplo em:</strong> ${exemplo.join(', ')}. O resto já é real.`}${erros.length ? `<br><strong>Erro na conexão</strong> ${erros.map(([k, m]) => `${esc(k)}: ${esc(m)}`).join(' · ')}` : ''}</span>`;
+  }
+  async function carregar() {
+    try {
+      if (!LISTA_POSTS) {
+        const rp = await fetch('/metricas/posts.json', { credentials: 'same-origin', cache: 'no-store' });
+        if (rp.ok) LISTA_POSTS = await rp.json();
+      }
+    } catch (e) { /* sem lista de posts */ }
+    try {
+      const r = await fetch(`/api/painel/dados?periodo=${encodeURIComponent(periodo)}`, { credentials: 'same-origin', cache: 'no-store' });
+      if (r.status === 401) { location.reload(); return; }
+      if (r.ok) DADOS = await r.json();
+    } catch (e) { /* sem API (teste local): segue com exemplo */ }
+    aplicarDados();
+    avisos();
+    mostrarConexoes(DADOS && DADOS.conexoes);
+    render();
+  }
+  async function atualizarAgora() {
+    const box = $('#agora-box');
+    if (!box || !REAL.agora || document.hidden) return;
+    try {
+      const r = await fetch('/api/painel/dados?so=agora', { credentials: 'same-origin', cache: 'no-store' });
+      if (r.ok) { const j = await r.json(); if (j.agora) { DADOS.agora = j.agora; box.innerHTML = agoraHtml(j.agora); } }
+    } catch (e) { /* tenta de novo no próximo ciclo */ }
+  }
+  setInterval(atualizarAgora, 60000);
 
   // ---------- início ----------
   try { const p = localStorage.getItem('painel_periodo'); if (p && PERIODOS.some(([k]) => k === p)) periodo = p; } catch (e) { /* sem armazenamento */ }

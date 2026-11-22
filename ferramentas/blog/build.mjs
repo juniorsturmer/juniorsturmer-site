@@ -695,6 +695,13 @@ if (fs.existsSync(smFile)) {
   fs.writeFileSync(smFile, sm);
 }
 
+// lista dos artigos para o painel privado /metricas (protegido por senha pela Edge Function)
+const painelDir = path.join(OUT, 'metricas');
+if (fs.existsSync(painelDir)) {
+  const lista = POSTS.pt.map((a) => ({ id: a.id, titulo: a.tituloPt, categoria: a.catPt, data: iso(a.data), url: a.url, urlEn: a.par ? a.par.url : null }));
+  fs.writeFileSync(path.join(painelDir, 'posts.json'), JSON.stringify(lista));
+}
+
 const llmsFile = path.join(OUT, 'llms.txt');
 if (fs.existsSync(llmsFile) && POSTS.pt.length) {
   let bloco = `\n## Blog ${CFG.nome}\n${LANGS.pt.descricao}\n- Blog: ${SITE}${LANGS.pt.base}\n${POSTS.pt.map((a) => `- [${a.titulo}](${SITE}${a.url}): ${a.resumo}`).join('\n')}\n`;

@@ -1,4 +1,18 @@
 /* Painel de métricas | juniorsturmer.com.br/metricas */
+/* Helvetica Neue instalada no computador, chamada pelo nome exato de cada peso.
+   Assim o navegador nunca pega uma variação Outline/Contorno da família. */
+@font-face { font-family: "Painel Sans"; font-weight: 100; font-style: normal; font-display: swap; src: local("HelveticaNeue-Thin"), local("Helvetica Neue Thin"), local("HelveticaNeueLTStd-Th"), local("Helvetica Neue LT Std 35 Thin"), local("HelveticaNeueLTPro-Th"), local("Helvetica Neue LT Pro 35 Thin"), local("HelveticaNeue-UltraLight"), local("Helvetica Neue UltraLight"); }
+@font-face { font-family: "Painel Sans"; font-weight: 100; font-style: italic; font-display: swap; src: local("HelveticaNeue-ThinItalic"), local("Helvetica Neue Thin Italic"), local("HelveticaNeueLTStd-ThIt"), local("Helvetica Neue LT Std 36 Thin Italic"), local("HelveticaNeueLTPro-ThIt"), local("Helvetica Neue LT Pro 36 Thin Italic"), local("HelveticaNeue-UltraLightItalic"); }
+@font-face { font-family: "Painel Sans"; font-weight: 300; font-style: normal; font-display: swap; src: local("HelveticaNeue-Light"), local("Helvetica Neue Light"), local("HelveticaNeueLTStd-Lt"), local("Helvetica Neue LT Std 45 Light"), local("HelveticaNeueLTPro-Lt"), local("Helvetica Neue LT Pro 45 Light"); }
+@font-face { font-family: "Painel Sans"; font-weight: 300; font-style: italic; font-display: swap; src: local("HelveticaNeue-LightItalic"), local("Helvetica Neue Light Italic"), local("HelveticaNeueLTStd-LtIt"), local("Helvetica Neue LT Std 46 Light Italic"), local("HelveticaNeueLTPro-LtIt"), local("Helvetica Neue LT Pro 46 Light Italic"); }
+@font-face { font-family: "Painel Sans"; font-weight: 400; font-style: normal; font-display: swap; src: local("HelveticaNeue"), local("Helvetica Neue Regular"), local("HelveticaNeue-Roman"), local("HelveticaNeueLTStd-Roman"), local("Helvetica Neue LT Std 55 Roman"), local("HelveticaNeueLTPro-Roman"), local("Helvetica Neue LT Pro 55 Roman"); }
+@font-face { font-family: "Painel Sans"; font-weight: 400; font-style: italic; font-display: swap; src: local("HelveticaNeue-Italic"), local("Helvetica Neue Italic"), local("HelveticaNeueLTStd-It"), local("Helvetica Neue LT Std 56 Italic"), local("HelveticaNeueLTPro-It"), local("Helvetica Neue LT Pro 56 Italic"); }
+@font-face { font-family: "Painel Sans"; font-weight: 500; font-style: normal; font-display: swap; src: local("HelveticaNeue-Medium"), local("Helvetica Neue Medium"), local("HelveticaNeueLTStd-Md"), local("Helvetica Neue LT Std 65 Medium"), local("HelveticaNeueLTPro-Md"), local("Helvetica Neue LT Pro 65 Medium"); }
+@font-face { font-family: "Painel Sans"; font-weight: 500; font-style: italic; font-display: swap; src: local("HelveticaNeue-MediumItalic"), local("Helvetica Neue Medium Italic"), local("HelveticaNeueLTStd-MdIt"), local("Helvetica Neue LT Std 66 Medium Italic"), local("HelveticaNeueLTPro-MdIt"); }
+@font-face { font-family: "Painel Sans"; font-weight: 700; font-style: normal; font-display: swap; src: local("HelveticaNeue-Bold"), local("Helvetica Neue Bold"), local("HelveticaNeueLTStd-Bd"), local("Helvetica Neue LT Std 75 Bold"), local("HelveticaNeueLTPro-Bd"), local("Helvetica Neue LT Pro 75 Bold"); }
+@font-face { font-family: "Painel Sans"; font-weight: 700; font-style: italic; font-display: swap; src: local("HelveticaNeue-BoldItalic"), local("Helvetica Neue Bold Italic"), local("HelveticaNeueLTStd-BdIt"), local("Helvetica Neue LT Std 76 Bold Italic"), local("HelveticaNeueLTPro-BdIt"), local("Helvetica Neue LT Pro 76 Bold Italic"); }
+@font-face { font-family: "Painel Sans"; font-weight: 900; font-style: normal; font-display: swap; src: local("HelveticaNeue-Black"), local("Helvetica Neue Black"), local("HelveticaNeueLTStd-Blk"), local("Helvetica Neue LT Std 95 Black"), local("HelveticaNeueLTPro-Blk"), local("Helvetica Neue LT Pro 95 Black"), local("HelveticaNeue-CondensedBlack"); }
+@font-face { font-family: "Painel Sans"; font-weight: 900; font-style: italic; font-display: swap; src: local("HelveticaNeue-BlackItalic"), local("HelveticaNeueLTStd-BlkIt"), local("Helvetica Neue LT Std 96 Black Italic"), local("HelveticaNeueLTPro-BlkIt"); }
 :root {
   --bg: #f4f4f1;
   --card: #ffffff;
@@ -16,8 +30,7 @@
   --down-bg: #fbecea;
   --warn: #8a5a00;
   --warn-bg: #fbf3df;
-  --serif: "EB Garamond", Garamond, Georgia, serif;
-  --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --sans: "Painel Sans", Helvetica, Arial, sans-serif;
   --r: 18px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -56,8 +69,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 .main { padding: 26px 30px 60px; min-width: 0; }
 .top { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-bottom: 18px; }
-.title { font-family: var(--serif); font-weight: 700; font-size: 38px; letter-spacing: -.02em; line-height: 1; }
-.title em { font-weight: 400; }
+.title { font-weight: 700; font-size: 36px; letter-spacing: -.03em; line-height: 1; }
+.title em { font-weight: 300; font-style: italic; letter-spacing: -.02em; }
 .sub { color: var(--muted); margin-top: 6px; }
 .top-r { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .seg { display: inline-flex; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 3px; }
@@ -89,8 +102,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 .kpi { display: flex; flex-direction: column; gap: 10px; }
 .kpi-l { display: flex; align-items: center; gap: 6px; color: var(--ink-2); font-size: 13px; }
-.kpi-v { font-size: 28px; font-weight: 700; letter-spacing: -.02em; line-height: 1; }
-.kpi-v small { font-size: 14px; font-weight: 600; color: var(--muted); letter-spacing: 0; margin-left: 2px; }
+.kpi-v { font-size: 28px; font-weight: 700; font-style: normal; letter-spacing: -.02em; line-height: 1; }
+.kpi-v small { font-size: 14px; font-weight: 400; color: var(--muted); letter-spacing: 0; margin-left: 2px; }
 .kpi-d { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .delta { font-weight: 700; padding: 1px 6px; border-radius: 6px; }
 .delta.up { color: var(--up); background: var(--up-bg); }
@@ -98,7 +111,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .delta.flat { color: var(--muted); background: var(--soft); }
 
 /* ícone i */
-.i { width: 14px; height: 14px; border-radius: 50%; border: 1px solid #b9b9b2; color: #8c8c86; font: italic 700 9px/12px var(--serif); display: inline-grid; place-items: center; flex: none; cursor: help; padding: 0; }
+.i { width: 14px; height: 14px; border-radius: 50%; border: 1px solid #b9b9b2; color: #8c8c86; font: italic 500 9px/12px var(--sans); display: inline-grid; place-items: center; flex: none; cursor: help; padding: 0; }
 .i:hover, .i:focus-visible { border-color: var(--ink); color: var(--ink); outline: none; }
 .tip { position: fixed; z-index: 50; max-width: 290px; background: var(--black); color: #e9e9e4; border-radius: 12px; padding: 12px 14px; font-size: 12.5px; line-height: 1.45; box-shadow: 0 10px 30px rgba(0, 0, 0, .18); pointer-events: none; }
 .tip b { color: #fff; display: block; margin-bottom: 2px; }
@@ -158,12 +171,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 
 /* tabelas */
 .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
-.tbl th { text-align: left; font-weight: 600; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; padding: 0 10px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tbl th { text-align: left; font-weight: 500; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; padding: 0 10px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 .tbl th .i { margin-left: 4px; vertical-align: -2px; }
 .tbl td { padding: 11px 10px; border-bottom: 1px solid var(--line-2); vertical-align: middle; }
 .tbl tr:last-child td { border-bottom: 0; }
 .tbl td.n, .tbl th.n { text-align: right; }
-.tbl .t-tit { font-weight: 600; }
+.tbl .t-tit { font-weight: 500; }
 .tbl .t-cat { color: var(--muted); font-size: 12px; }
 .rank { width: 24px; height: 24px; border-radius: 50%; display: inline-grid; place-items: center; font-weight: 700; font-size: 12px; background: var(--soft); border: 1px solid var(--line); }
 .rank.r1 { background: var(--black); color: var(--acc); border-color: var(--black); }
@@ -197,30 +210,30 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .ring { position: relative; width: 150px; height: 150px; flex: none; }
 .ring svg { width: 150px; height: 150px; transform: rotate(-90deg); }
 .ring-c { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
-.ring-c b { font-size: 42px; letter-spacing: -.03em; line-height: 1; display: block; }
+.ring-c b { font-size: 42px; font-weight: 700; letter-spacing: -.03em; line-height: 1; display: block; }
 .ring-c small { color: var(--muted); font-size: 12px; }
 .ring.sm, .ring.sm svg { width: 92px; height: 92px; }
 .ring.sm .ring-c b { font-size: 26px; }
 .faixas { display: flex; gap: 4px; margin-top: 10px; }
 .faixas span { flex: 1; height: 6px; border-radius: 99px; background: #ecece7; }
 .faixas span.on { background: var(--ink); }
-.faixa-n { font-family: var(--serif); font-size: 22px; font-weight: 700; letter-spacing: -.01em; }
+.faixa-n { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
 .comp { display: grid; grid-template-columns: minmax(0, 1fr) 70px 44px; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line-2); }
 .comp:last-child { border-bottom: 0; }
-.comp-n { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.comp-n { display: flex; align-items: center; gap: 6px; font-weight: 500; }
 .comp small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; }
 .comp b { text-align: right; }
 .marcos .lst-i { justify-content: flex-start; }
 .chk { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #c9c9c2; flex: none; display: grid; place-items: center; }
 .chk.ok { background: var(--black); border-color: var(--black); color: var(--acc); }
 .ia { width: 100%; border-collapse: collapse; font-size: 13px; }
-.ia th { font-size: 11.5px; color: var(--muted); font-weight: 600; text-align: center; padding: 0 6px 8px; }
+.ia th { font-size: 11.5px; color: var(--muted); font-weight: 500; text-align: center; padding: 0 6px 8px; }
 .ia th:first-child { text-align: left; }
 .ia td { padding: 8px 6px; border-top: 1px solid var(--line-2); text-align: center; }
 .ia td:first-child { text-align: left; }
 .d { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: #e2e2dc; }
 .d.ok { background: var(--black); box-shadow: inset 0 0 0 2px var(--black), inset 0 0 0 5px var(--acc); }
-.btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 99px; border: 1px solid var(--line); background: #fff; font-size: 13px; font-weight: 600; }
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 99px; border: 1px solid var(--line); background: #fff; font-size: 13px; font-weight: 500; }
 .btn.dark { background: var(--black); color: #fff; border-color: var(--black); }
 .btn[disabled] { opacity: .5; cursor: not-allowed; }
 .acoes { display: flex; gap: 6px; }

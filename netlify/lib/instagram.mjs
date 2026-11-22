@@ -14,7 +14,7 @@ const CHAVES = ['token', 'perfil', 'seguidores', 'serie', 'periodos', 'meses', '
 export async function apagarTudo() { await Promise.all(CHAVES.map((k) => loja().delete(k))); }
 const contaCerta = (t) => t && String(t.usuario || '').toLowerCase() === CONTA();
 
-export const loja = () => getStore('painel-instagram');
+export const loja = () => getStore({ name: 'painel-instagram', consistency: 'strong' });
 const lerJSON = async (k, padrao) => (await loja().get(k, { type: 'json' })) ?? padrao;
 const salvarJSON = (k, v) => loja().setJSON(k, v);
 

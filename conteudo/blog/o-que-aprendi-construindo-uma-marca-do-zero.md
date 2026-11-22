@@ -37,6 +37,4 @@ Antes de convencer o mercado, a marca precisa fazer sentido para quem está dent
 
 Empresa que cresce lança produto novo, abre frente nova, cria serviço novo. Se não existe uma lógica clara de como essas peças se relacionam, cada lançamento vira uma marca solta e o cliente se perde. Pensar arquitetura cedo evita muito retrabalho depois.
 
-## O que levo para outros projetos
-
-Essa vivência mudou a forma como eu trabalho com outras empresas. Não começo pelo logo, começo pelo negócio. E acompanho de perto, porque marca não é um projeto que termina na entrega do manual. É uma construção que continua todo dia.
+Essa vivência mudou a forma como eu trabalho. Não começo pelo logo, começo pelo negócio. E acompanho de perto, porque marca não é um projeto que termina na entrega do manual. É uma construção que continua todo dia.

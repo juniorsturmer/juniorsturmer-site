@@ -3,7 +3,7 @@
 // /api/painel/instagram/retorno   → a Meta volta para cá; guarda o token e dispara a primeira coleta
 // /api/painel/instagram/coletar   → "Atualizar agora" no painel
 import { sessaoValida, assinarTexto, conferirAssinatura, env, CABECALHOS_PRIVADOS } from '../lib/sessao.mjs';
-import { urlAutorizacao, trocarCodigo, dispararColeta } from '../lib/instagram.mjs';
+import { urlAutorizacao, trocarCodigo, dispararColeta, apagarTudo } from '../lib/instagram.mjs';
 
 const html = (corpo, status = 200) => new Response(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="robots" content="noindex"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Instagram | Painel</title>
 <style>body{font:16px/1.5 Helvetica,Arial,sans-serif;background:#f4f4f1;color:#111;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px}main{background:#fff;border:1px solid #e6e6e1;border-radius:20px;padding:32px;max-width:420px}h1{font-size:22px;margin:0 0 8px}a{color:#111}</style></head><body><main>${corpo}</main></body></html>`,
@@ -36,6 +36,12 @@ export default async (req) => {
     }
   }
 
+  if (acao === 'desconectar') {
+    if (req.method !== 'POST' || !(await sessaoValida(req))) return new Response('Não autorizado', { status: 401, headers: CABECALHOS_PRIVADOS });
+    await apagarTudo();
+    return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json', ...CABECALHOS_PRIVADOS } });
+  }
+
   if (acao === 'coletar') {
     if (req.method !== 'POST' || !(await sessaoValida(req))) return new Response('Não autorizado', { status: 401, headers: CABECALHOS_PRIVADOS });
     await dispararColeta(url.origin);
@@ -45,4 +51,4 @@ export default async (req) => {
   return new Response('Não encontrado', { status: 404, headers: CABECALHOS_PRIVADOS });
 };
 
-export const config = { path: ['/api/painel/instagram/conectar', '/api/painel/instagram/retorno', '/api/painel/instagram/coletar'] };
+export const config = { path: ['/api/painel/instagram/conectar', '/api/painel/instagram/retorno', '/api/painel/instagram/coletar', '/api/painel/instagram/desconectar'] };

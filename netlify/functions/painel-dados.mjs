@@ -227,7 +227,15 @@ export default async (req) => {
     const agora = conexoes.ga4 ? await tentar(dadosAgora, erros, 'agora') : null;
     return json({ agora, erros });
   }
-  if (emCache && Date.now() - emCache.em < CACHE_MS && url.searchParams.get('novo') !== '1') return json(emCache.dados);
+  // o cache guarda só Google (GA4 e Search Console); o Instagram é lido do Blobs a cada pedido
+  const comInstagram = async (base) => {
+    const erros = { ...(base.erros || {}) };
+    const conexoesAgora = { ...base.conexoes };
+    const ig = await tentar(() => dadosInstagram(periodo, DIAS_SERIE), erros, 'instagram');
+    if (ig) conexoesAgora.instagram = Boolean(ig.conectado && ig.perfil);
+    return { ...base, conexoes: conexoesAgora, erros, instagram: ig || undefined };
+  };
+  if (emCache && Date.now() - emCache.em < CACHE_MS && url.searchParams.get('novo') !== '1') return json(await comInstagram(emCache.dados));
 
   const P = periodos(periodo);
   const erros = {};
@@ -241,12 +249,11 @@ export default async (req) => {
     tarefas.push(tentar(() => dadosReferencias(P), erros, 'referencias').then((v) => { if (v) saida.referencias = v; }));
   }
   if (conexoes.searchConsole) tarefas.push(tentar(() => dadosBuscas(P), erros, 'searchConsole').then((v) => { if (v) saida.buscas = v; }));
-  tarefas.push(tentar(() => dadosInstagram(periodo, DIAS_SERIE), erros, 'instagram').then((v) => { if (v) { saida.instagram = v; conexoes.instagram = Boolean(v.conectado); } }));
   await Promise.all(tarefas);
 
   saida.demo = !saida.site;
   if (!Object.keys(erros).length) cache.set(chaveCache, { em: Date.now(), dados: saida });
-  return json(saida);
+  return json(await comInstagram(saida));
 };
 
 export const config = { path: '/api/painel/dados' };

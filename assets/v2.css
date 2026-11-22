@@ -717,3 +717,8 @@ fieldset.fd { border: 0; }
 .ft-g.one .fc { min-height: 0; }
 .ft-g.one .fc .base { margin-top: 22px; }
 .ft-g.one { margin-top: 64px; }
+
+/* foto do topo da home: mantém a proporção original em qualquer tela
+   (a regra geral img { max-width: 100% } espremia a foto no celular) */
+.stage .me { width: max-content; max-width: none; }
+.stage .me img { width: auto; max-width: none; height: 100%; object-fit: contain; }

@@ -1,0 +1,16 @@
+{
+  "name": "juniorsturmer-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node ferramentas/blog/build.mjs"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "marked": "^15.0.12",
+    "sharp": "^0.33.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -8,6 +8,42 @@ capa_alt: Blocos arredondados formando um sistema visual com as letras Aa e a ex
 destaque: false
 rascunho: false
 linkedin: ""
+en:
+  titulo: "What I learned building a brand from scratch"
+  resumo: "Since 2019 I've been building TruckPag's marketing and branding. Five lessons from watching a brand start without investors and grow in a traditional market."
+  capa_alt: "Rounded blocks forming a visual system with the letters Aa and the words do zero"
+  slug: "what-i-learned-building-a-brand-from-scratch"
+  linkedin: ""
+  texto: |
+    In 2019 I started building TruckPag's marketing and branding from scratch. TruckPag is a payments fintech for the transportation industry. There was no investor, no launch budget and no brand guide waiting in a drawer. There was a traditional market, wary of anything new, and the job of getting a new company taken seriously.
+
+    Today TruckPag moves more than R$2 billion a year. A lot of things contributed to that, and brand is one of them. Here are a few lessons I've carried into every project since.
+
+    ## 1. A brand comes from the business, not from the brief
+
+    The best brand decisions came from understanding how the client works, where they lose time and money, and what makes them trust someone. The visuals came later. When strategy is anchored in the business, the creative work gets easier and debates about taste almost disappear.
+
+    ## 2. Traditional markets value consistency more than creativity
+
+    In more conservative industries, trust is built through repetition. Showing up the same way, speaking the same language and doing what you said, month after month. Creativity helps grab attention. Consistency is what turns attention into a relationship.
+
+    ## 3. Without a budget, clarity is worth more
+
+    When there's no money to be everywhere, every piece has to work twice as hard. That forces you to have a clear message and cut anything decorative. It was a constraint that turned into an advantage.
+
+    > A small budget doesn't stop you from building a strong brand. It just makes it obvious what's essential.
+
+    ## 4. The team is the brand's first audience
+
+    Before convincing the market, the brand has to make sense to the people inside. A sales team that understands the positioning sells better. Customer service that knows the tone of voice solves problems better. A brand that only exists on Instagram doesn't hold up.
+
+    ## 5. Brand architecture needs to come before growth
+
+    A growing company launches new products, opens new fronts, creates new services. Without a clear logic for how these pieces relate, every launch becomes a loose brand and the client gets lost. Thinking about architecture early saves a lot of rework later.
+
+    ## What I take to other projects
+
+    This experience changed the way I work with other companies. I don't start with the logo, I start with the business. And I stay close, because a brand isn't a project that ends when the guidelines are delivered. It's something you keep building every day.
 ---
 Em 2019 comecei a construir do zero o marketing e o branding da TruckPag, uma fintech de meios de pagamento para o transporte. Não tinha investidor, não tinha verba de lançamento e não tinha um manual de marca esperando na gaveta. Tinha um mercado tradicional, desconfiado de novidade, e a missão de fazer uma empresa nova ser levada a sério.
 

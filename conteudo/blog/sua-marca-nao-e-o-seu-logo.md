@@ -8,6 +8,55 @@ capa_alt: Círculo verde-limão com a palavra logo, dentro de um anel maior, sob
 destaque: true
 rascunho: false
 linkedin: ""
+en:
+  titulo: "Your brand isn't your logo"
+  resumo: "The logo is the signature. The brand is everything people remember, feel and expect from your company. Confusing the two is expensive."
+  capa_alt: "Lime green circle with the word logo, inside a larger ring, on a dark background with golden light"
+  slug: "your-brand-isnt-your-logo"
+  linkedin: ""
+  texto: |
+    Almost every conversation about brand starts the same way: "I need a new logo." And almost every time, the problem isn't the logo.
+
+    I've lost count of how many times a business owner came to me with that request and, after half an hour of talking, it became clear the discomfort was something else. The company had grown, changed audiences, gained a strong competitor, and the way it presented itself had fallen behind. The logo is just the most visible part of that mismatch.
+
+    ## The logo is the signature, the brand is the reputation
+
+    Think of someone you admire. What makes them who they are isn't their signature on a piece of paper. It's the way they talk, what they stand for, how they treat people, what you expect when you meet them.
+
+    Companies work the same way. A brand is the set of perceptions someone has about your business. It takes shape at every point of contact:
+
+    - in the WhatsApp reply at 6 p.m. on a Friday
+    - in the sales proposal that lands in the client's inbox
+    - in the team's uniform and the storefront
+    - in what people say about you when you're not in the room
+
+    The logo helps people recognize you. The brand is the reason they choose you.
+
+    > A beautiful logo on a company without clarity is just expensive packaging for a promise nobody understood.
+
+    ## Why changing only the logo rarely works
+
+    When the discomfort is strategic and the answer is aesthetic, one of two things happens. Either nothing changes, because the client still doesn't understand why they should choose you. Or it gets worse, because the company spends energy, money and team time on a change that doesn't match what it delivers.
+
+    The right question before touching the visuals is a different one: **what do we want people to think when they remember our company?** If nobody on the team can answer that in one sentence, the problem isn't design.
+
+    ## Where to start
+
+    Before opening any visual identity brief, I usually go through three questions with the client:
+
+    1. **Who do we exist for?** Not "for everyone." The client who brings profit, refers others and comes back.
+    2. **What can only we deliver?** Something a competitor can't copy in six months.
+    3. **How do we want to be remembered?** In plain words, the way the client would say it.
+
+    With those answers on the table, the logo stops being a matter of taste and becomes a decision. That's when design has something to translate.
+
+    ## The logo's role, in the right place
+
+    I'm not saying the logo doesn't matter. It does, a lot. A good symbol creates a shortcut in memory and brings consistency to everything the company produces. But it's the end of a line of thinking, not the beginning.
+
+    A strong brand makes sense before it looks good. When the strategy is clear, the logo becomes easier to create and much harder to forget.
+
+    If your company is at that "I think we need to change something" moment, start with a conversation, not with a vector file.
 ---
 Quase toda conversa sobre marca começa do mesmo jeito: "preciso de um logo novo". E quase sempre o problema não está no logo.
 

@@ -15,9 +15,9 @@ Essa semana ouvi de um cliente: "marca é coisa de empresa que vende pra consumi
 
 Quando se fala em marca, a maioria pensa em comercial de TV, embalagem bonita e perfil caprichado no Instagram. Nada disso parece ter a ver com quem vende máquina, software, frete ou serviço para outras empresas.
 
-No B2B, a venda acontece por relacionamento, proposta e um bom vendedor. Então fica a impressão de que marca é enfeite.
+No B2B, a venda acontece por relacionamento, proposta e um bom vendedor. Então fica a impressão de que marca é enfeite, um [custo de marketing](/blog/marca-nao-e-custo-de-marketing/) que dá pra cortar.
 
-O problema está na definição. Marca não é o anúncio. É o que as pessoas pensam da sua empresa quando ouvem o seu nome. Isso existe em qualquer negócio, querendo ou não. A diferença é se você cuida disso ou deixa no acaso.
+O problema está na definição. Marca não é o anúncio, do mesmo jeito que [não é o seu logo](/blog/sua-marca-nao-e-o-seu-logo/). É o que as pessoas pensam da sua empresa quando ouvem o seu nome. Isso existe em qualquer negócio, querendo ou não. A diferença é se você cuida disso ou deixa no acaso.
 
 ## O cliente B2B quase nunca está comprando agora
 

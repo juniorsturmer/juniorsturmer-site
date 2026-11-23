@@ -676,7 +676,6 @@ fieldset.fd { border: 0; }
 .cx-me .av img { width: 100%; height: 100%; object-fit: cover; }
 .cx-me p { flex: 1; min-width: 0; font-size: 14px; line-height: 1.4; color: var(--g-4); }
 .cx-me p b { display: block; color: var(--ink); font-weight: 500; font-size: 16px; }
-.cx-me p small { display: block; font-size: 12.5px; color: var(--g-3); margin-top: 2px; }
 .cx-soc { display: flex; gap: 8px; }
 .cx-soc a { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--white); transition: transform .3s var(--ease), color .3s; }
 .cx-soc a:hover { transform: translateY(-3px); color: var(--lime); }

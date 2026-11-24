@@ -2,6 +2,7 @@
 // Tudo fica no Netlify Blobs, numa lista só: cada item é "novo" (para revisar), "confirmado" ou "descartado".
 import { getStore } from '@netlify/blobs';
 import { env } from './sessao.mjs';
+import SEMENTE from './presenca-semente.mjs';
 
 const loja = () => getStore({ name: 'painel-presenca', consistency: 'strong' });
 
@@ -150,12 +151,30 @@ export async function cadastrar({ titulo, link, data, tipo, marco, fonte }) {
   await salvarItens(itens);
 }
 
+// carrega uma vez as citações da varredura manual (sem sobrescrever o que já existe)
+export async function aplicarSemente() {
+  const feita = await loja().get('semente', { type: 'json' });
+  if (feita && feita.versao >= SEMENTE.versao) return 0;
+  const itens = await lerItens();
+  let n = 0;
+  for (const x of SEMENTE.itens) {
+    const id = await hash(normalizar(x.link || `varredura|${x.titulo}`));
+    if (itens[id]) continue;
+    itens[id] = { id, titulo: x.titulo, link: x.link || '', fonte: x.fonte || dominio(x.link), data: x.data || '', trecho: x.trecho || '', obs: x.obs, origem: 'varredura', estado: x.estado, tipo: TIPOS[x.tipo] ? x.tipo : undefined, marco: MARCOS.includes(x.marco) ? x.marco : undefined, achadoEm: Date.now(), mudouEm: Date.now() };
+    n += 1;
+  }
+  await salvarItens(itens);
+  await loja().setJSON('semente', { versao: SEMENTE.versao, em: Date.now(), novos: n });
+  return n;
+}
+
 // o que o painel recebe
 export async function dadosPresenca() {
   const lista = feeds();
+  await aplicarSemente();
   const [itens, coleta] = await Promise.all([lerItens(), loja().get('coleta', { type: 'json' })]);
-  const todos = Object.values(itens).sort((a, b) => String(b.data).localeCompare(String(a.data)) || (b.achadoEm || 0) - (a.achadoEm || 0));
-  const limpo = (x) => ({ id: x.id, titulo: x.titulo, link: x.link, fonte: x.fonte, data: x.data, trecho: x.trecho, alerta: x.alerta, origem: x.origem, tipo: x.tipo, marco: x.marco });
+  const todos = Object.values(itens).sort((a, b) => String(b.data || '0').localeCompare(String(a.data || '0')) || (b.achadoEm || 0) - (a.achadoEm || 0));
+  const limpo = (x) => ({ id: x.id, titulo: x.titulo, link: x.link, fonte: x.fonte, data: x.data, trecho: x.trecho, alerta: x.alerta, origem: x.origem, tipo: x.tipo, marco: x.marco, obs: x.obs });
   return {
     conectado: lista.length > 0,
     feeds: lista.length,

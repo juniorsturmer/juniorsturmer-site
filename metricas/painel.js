@@ -105,6 +105,7 @@
     pr_escala: ['Como cada parte vira nota de 0 a 100.', 'Nota = raiz quadrada (resultado ÷ meta de 12 meses) × 100, limitada a 100. A raiz faz as primeiras conquistas aparecerem mais rápido.'],
     pr_marcos: ['Os marcos que você definiu para se sentir um nome relevante.', 'Marcados como feitos quando uma menção confirmada atende o marco.'],
     pr_mencoes: ['Menções confirmadas por você.', 'Vêm do Google Alerts (depois da sua revisão) ou do cadastro manual.'],
+    pr_mapa: ['Todos os lugares onde você já foi citado, de qualquer data.', 'Cada citação vale pelos pesos da nota: portal ou jornal 5; entrevista, podcast, palestra ou artigo assinado 4; blog de nicho 2; post de terceiros 1. Só as dos últimos 90 dias entram na nota; as mais antigas formam seu histórico. A base inicial veio de uma varredura na web em 24/11/2026.'],
     pr_revisar: ['Possíveis menções encontradas pelo Google Alerts.', 'Os 3 alertas são lidos a cada 6 horas. O feed traz tudo que cita os nomes monitorados; páginas do seu próprio site já saem descartadas. Você confirma o que é você e escolhe o tipo, que define os pontos.'],
     ig_conectar: ['Liga o painel à sua conta profissional do Instagram.', 'Você autoriza só a leitura (perfil e estatísticas) na tela da Meta, escolhendo a Página ligada ao @juniorsturmer. O acesso fica guardado no servidor, não expira e pode ser removido no Facebook em Configurações > Integrações comerciais.'],
     pr_nomes: ['Nomes que o Google Alerts monitora.', 'Junior Sturmer, Jacir Sturmer e Selzler Sturmer pegam todas as formas do seu nome completo. "Jacir Junior" é comum demais, então só conta junto com TruckPag.'],
@@ -863,8 +864,12 @@
     const D = DADOS.presenca;
     const c = D.coleta;
     const subRev = c ? `Google Alerts · lido ${horaColeta(c.em)} · ${D.feeds} ${D.feeds === 1 ? 'alerta' : 'alertas'}` : 'Google Alerts · primeira leitura em andamento';
-    const conf = D.confirmadas.map((x) => `<div class="lst-i"><div class="pr-i">${tituloLink(x)}<small>${esc(x.fonte || (x.origem === 'manual' ? 'cadastro manual' : ''))} · ${esc(nomeTipo(x))}${x.marco ? ' · marco' : ''} · ${dataCurta(x.data)} · <button class="lnk" type="button" data-pr="voltar" data-id="${esc(x.id)}">${x.origem === 'manual' ? 'remover' : 'voltar para revisão'}</button></small></div><div class="r"><b>+${pontosDe(x)}</b> ${pontosDe(x) === 1 ? 'pt' : 'pts'}</div></div>`).join('');
-    const rev = D.revisar.map((x) => `<div class="lst-i pr-rev" data-linha="${esc(x.id)}"><div class="pr-i">${tituloLink(x)}<small>${esc(x.fonte)} · ${dataCurta(x.data)}${x.alerta ? ` · alerta ${esc(x.alerta)}` : ''}</small>${x.trecho ? `<small class="pr-trecho">${esc(x.trecho)}</small>` : ''}</div><div class="acoes">${selTipo(`data-tipo="${esc(x.id)}"`)}<button class="btn dark" type="button" data-pr="confirmar" data-id="${esc(x.id)}">É você</button><button class="btn" type="button" data-pr="descartar" data-id="${esc(x.id)}">Descartar</button></div></div>`).join('');
+    const corte = ymdLocal(new Date(HOJE.getTime() - 89 * 864e5));
+    const recentes = D.confirmadas.filter((x) => String(x.data) >= corte);
+    const ptsRec = soma(recentes.map(pontosDe));
+    const acaoVoltar = (x) => `<button class="lnk" type="button" data-pr="voltar" data-id="${esc(x.id)}">${x.origem === 'manual' ? 'remover' : 'voltar para revisão'}</button>`;
+    const conf = recentes.map((x) => `<div class="lst-i"><div class="pr-i">${tituloLink(x)}<small>${esc(x.fonte || (x.origem === 'manual' ? 'cadastro manual' : ''))} · ${esc(nomeTipo(x))}${x.marco ? ' · marco' : ''} · ${dataCurta(x.data)} · ${acaoVoltar(x)}</small></div><div class="r"><b>+${pontosDe(x)}</b> ${pontosDe(x) === 1 ? 'pt' : 'pts'}</div></div>`).join('');
+    const rev = D.revisar.map((x) => `<div class="lst-i pr-rev" data-linha="${esc(x.id)}"><div class="pr-i">${tituloLink(x)}<small>${[esc(x.fonte || ''), dataCurta(x.data), x.alerta ? `alerta ${esc(x.alerta)}` : ''].filter(Boolean).join(' · ')}</small>${x.trecho ? `<small class="pr-trecho">${esc(x.trecho)}</small>` : ''}</div><div class="acoes">${selTipo(`data-tipo="${esc(x.id)}"`)}<button class="btn dark" type="button" data-pr="confirmar" data-id="${esc(x.id)}">É você</button><button class="btn" type="button" data-pr="descartar" data-id="${esc(x.id)}">Descartar</button></div></div>`).join('');
     const form = `<form class="pr-form" id="pr-form" hidden>
         <input class="inp" name="titulo" required maxlength="220" placeholder="Título ou assunto">
         <input class="inp" name="fonte" maxlength="80" placeholder="Veículo (ex.: Meio & Mensagem)">
@@ -872,16 +877,44 @@
         <div class="pr-form-l"><input class="inp" type="date" name="data" value="${ymdLocal(HOJE)}">${selTipo('name="tipo" required')}</div>
         <div class="acoes"><button class="btn dark" type="submit">Salvar menção</button><button class="btn" type="button" data-pr="fechar-form">Cancelar</button></div>
       </form>`;
-    return `<div class="grid g-2 mt">
-          <div class="card">${cardH('Menções confirmadas', `${D.confirmadas.length} ${D.confirmadas.length === 1 ? 'menção' : 'menções'} · pontos por tipo de veículo`, 'pr_mencoes', 'mega', '<button class="btn dark" type="button" data-pr="abrir-form">Registrar menção</button>')}
+    return `<div class="grid g-2 mt pr-g">
+          <div class="card">${cardH('Contam na nota agora', `${recentes.length} ${recentes.length === 1 ? 'menção' : 'menções'} · ${n(ptsRec)} ${ptsRec === 1 ? 'ponto' : 'pontos'} nos últimos 90 dias`, 'pr_mencoes', 'mega', '<button class="btn dark" type="button" data-pr="abrir-form">Registrar menção</button>')}
             ${form}
-            <div class="lst pr-lst">${conf || '<div class="lst-i"><div><small>Nenhuma menção confirmada ainda. Confirme as encontradas pelo Google Alerts ou registre uma à mão.</small></div></div>'}</div>
+            <div class="lst pr-lst">${conf || `<div class="lst-i"><div><small>Nenhuma citação nos últimos 90 dias${D.confirmadas.length ? `. A mais recente é de ${dataCurta(D.confirmadas[0].data)} e está no mapa abaixo` : ''}. Confirme as que o Google Alerts trouxer ou registre uma à mão.</small></div></div>`}</div>
           </div>
           <div class="card">${cardH('Para revisar', subRev, 'pr_revisar', 'lupa', '<button class="btn" type="button" data-pr="coletar">Buscar agora</button>')}
             <div class="lst pr-lst">${rev || '<div class="lst-i"><div><small>Nada para revisar. Os alertas são lidos a cada 6 horas e cada vez que você abre o painel depois disso.</small></div></div>'}</div>
             ${D.descartadas ? `<div class="card-s" style="margin-top:10px">${n(D.descartadas)} ${D.descartadas === 1 ? 'resultado descartado' : 'resultados descartados'} (inclui páginas do seu próprio site)</div>` : ''}
           </div>
-        </div>`;
+        </div>
+        ${mapaCitacoes(D, corte, acaoVoltar)}`;
+  }
+  let FILTRO_MAPA = 'todos';
+  function mapaCitacoes(D, corte, acaoVoltar) {
+    const todas = D.confirmadas;
+    if (!todas.length) return '';
+    const tipos = Object.keys(D.tipos).filter((k) => todas.some((x) => x.tipo === k));
+    if (FILTRO_MAPA !== 'todos' && !tipos.includes(FILTRO_MAPA)) FILTRO_MAPA = 'todos';
+    const lista = FILTRO_MAPA === 'todos' ? todas : todas.filter((x) => x.tipo === FILTRO_MAPA);
+    const pts = soma(todas.map(pontosDe));
+    const veiculos = new Set(todas.map((x) => String(x.fonte || '').toLowerCase())).size;
+    const anos = [...new Set(todas.map((x) => String(x.data).slice(0, 4)).filter(Boolean))].sort();
+    const chip = (k, rot, q, p) => `<button type="button" class="mapa-f" data-mapa="${k}" aria-pressed="${FILTRO_MAPA === k}">${rot} <b>${q}</b>${p !== null ? `<span>${n(p)} pts</span>` : ''}</button>`;
+    const linhas = lista.map((x) => {
+      const p = pontosDe(x);
+      const conta = String(x.data) >= corte;
+      return `<tr><td class="nw">${dataCurta(x.data) || '-'}</td><td class="mapa-t">${tituloLink(x)}<small>${esc(x.fonte || '')}${x.obs ? ` · ${esc(x.obs)}` : ''} · ${acaoVoltar(x)}</small></td><td class="nw">${esc(nomeTipo(x))}${x.marco ? ' <span class="tag feito">marco</span>' : ''}</td><td class="n"><b>${p}</b> ${p === 1 ? 'pt' : 'pts'}</td><td>${conta ? '<span class="tag ok">conta agora</span>' : '<span class="tag">histórico</span>'}</td></tr>`;
+    }).join('');
+    return `<div class="card mt">${cardH('Onde você já foi citado', `Todas as citações confirmadas${anos.length ? `, de ${anos[0]} a ${anos[anos.length - 1]}` : ''}`, 'pr_mapa', 'mega')}
+      <div class="mapa-k">
+        <div><span>Citações</span><b>${n(todas.length)}</b></div>
+        <div><span>Pontos acumulados</span><b>${n(pts)}</b></div>
+        <div><span>Veículos diferentes</span><b>${n(veiculos)}</b></div>
+        <div><span>Mais recente</span><b>${dataCurta(todas[0].data) || '-'}</b></div>
+      </div>
+      <div class="mapa-fs">${chip('todos', 'Todas', todas.length, null)}${tipos.map((k) => { const l = todas.filter((x) => x.tipo === k); return chip(k, D.tipos[k].nome, l.length, soma(l.map(pontosDe))); }).join('')}</div>
+      <div class="tbl-wrap"><table class="tbl mapa"><thead><tr><th>Data</th><th>Onde</th><th>Tipo</th><th class="n">Peso</th><th>Na nota</th></tr></thead><tbody>${linhas}</tbody></table></div>
+    </div>`;
   }
   async function acaoPresenca(rota, corpo, botao) {
     if (botao) botao.disabled = true;
@@ -920,6 +953,7 @@
       }
     }));
     v.querySelectorAll('.sel').forEach((s) => s.addEventListener('change', () => s.classList.remove('falta')));
+    v.querySelectorAll('[data-mapa]').forEach((b) => b.addEventListener('click', () => { FILTRO_MAPA = b.dataset.mapa; const y = window.scrollY; render(); window.scrollTo(0, y); }));
     const f = $('#pr-form');
     if (f) f.addEventListener('submit', (e) => {
       e.preventDefault();

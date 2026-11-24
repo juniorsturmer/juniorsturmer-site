@@ -242,6 +242,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .soon { text-align: center; padding: 60px 20px; color: var(--muted); }
 /* Presença: revisão e cadastro de menções */
 .pr-lst { max-height: 560px; overflow-y: auto; }
+.pr-g { align-items: start; }
 .pr-i { min-width: 0; }
 .pr-t { color: var(--ink); text-decoration: none; font-weight: 500; overflow-wrap: anywhere; }
 a.pr-t:hover { text-decoration: underline; }
@@ -257,6 +258,22 @@ a.pr-t:hover { text-decoration: underline; }
 .pr-form .inp { width: 100%; }
 .pr-form-l { display: grid; grid-template-columns: 160px 1fr; gap: 8px; }
 .pr-form-l .sel { max-width: none; }
+.mapa-k { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+.mapa-k div { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: var(--soft); }
+.mapa-k span { display: block; font-size: 12px; color: var(--muted); }
+.mapa-k b { font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
+.mapa-fs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.mapa-f { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 99px; background: #fff; font-size: 12.5px; color: var(--ink-2); }
+.mapa-f b { font-weight: 700; color: var(--ink); }
+.mapa-f span { color: var(--muted); font-size: 11.5px; }
+.mapa-f[aria-pressed="true"] { background: var(--black); border-color: var(--black); color: #fff; }
+.mapa-f[aria-pressed="true"] b, .mapa-f[aria-pressed="true"] span { color: #fff; }
+.tbl.mapa td { vertical-align: top; }
+.mapa-t { min-width: 280px; }
+.mapa-t small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.nw { white-space: nowrap; }
+.tag:not(.ok):not(.alerta):not(.feito) { color: var(--muted); border-color: var(--line); background: #fff; }
+@media (max-width: 860px) { .mapa-k { grid-template-columns: repeat(2, 1fr); } }
 
 /* ---------- responsivo ---------- */
 @media (max-width: 1280px) {

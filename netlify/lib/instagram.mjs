@@ -320,7 +320,7 @@ export async function dadosPainel(periodo, diasSerie) {
     const gancho = legenda.split('\n').map((l) => l.trim()).find(Boolean) || '';
     return {
       id: m.id, formato: m.formato, dia: m.dia, hora: m.timestamp ? horaSP(m.timestamp) : null, link: m.permalink, thumb: m.thumbnail_url || m.media_url || null,
-      texto: gancho.slice(0, 140), legenda: legenda.length, hashtags: (legenda.match(/#[\p{L}\p{N}_]+/gu) || []).length, i: m.insights || {},
+      texto: gancho.slice(0, 140), legenda: legenda.length, legendaTxt: legenda.slice(0, 2200), hashtags: (legenda.match(/#[\p{L}\p{N}_]+/gu) || []).length, i: m.insights || {},
     };
   };
   return {

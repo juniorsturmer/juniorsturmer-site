@@ -52,6 +52,20 @@ async function chamar(url, corpo) {
   return j;
 }
 
+// GA4: dimensões personalizadas registradas na propriedade (para só pedir o que existe)
+let metaCache = null;
+export async function ga4Dimensoes() {
+  if (metaCache && metaCache.em > Date.now() - 6 * 36e5) return metaCache.dims;
+  const id = env('GA4_PROPERTY_ID');
+  const token = await tokenGoogle();
+  const r = await fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${encodeURIComponent(id)}/metadata`, { headers: { Authorization: `Bearer ${token}` } });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((j.error && j.error.message) || `HTTP ${r.status}`);
+  const dims = new Set((j.dimensions || []).map((d) => d.apiName).filter((n) => n.startsWith('customEvent:')));
+  metaCache = { em: Date.now(), dims };
+  return dims;
+}
+
 // GA4: até 5 relatórios por chamada
 export async function ga4Lote(relatorios) {
   const id = env('GA4_PROPERTY_ID');

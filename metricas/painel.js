@@ -73,11 +73,22 @@
     site_origem: ['De onde as pessoas chegaram.', 'Canal da sessão no GA4: Google, redes sociais, acesso direto, outros sites.'],
     site_paginas: ['Páginas mais vistas do site.', 'Visualizações de página no GA4, somando português e inglês.'],
     site_buscas: ['O que as pessoas digitaram no Google antes de clicar no seu site.', 'Search Console: cliques, impressões e posição média por busca. Tem 2 a 3 dias de atraso.'],
-    blog_leitores: ['Pessoas que abriram pelo menos um artigo.', 'Usuários com o evento blog_artigo_view no período.'],
+    blog_leitores: ['Pessoas diferentes que abriram pelo menos um artigo.', 'Usuários com o evento blog_artigo_view no período.'],
     blog_completa: ['De cada 100 leitores, quantos chegaram ao fim do texto.', 'blog_leitura_completa ÷ blog_artigo_view × 100.'],
     blog_tempo: ['Tempo médio de leitura ativa por leitor.', 'Tempo de engajamento nas páginas dos artigos ÷ leitores. Só conta com a aba em foco.'],
     blog_posts: ['Artigos publicados no mês contra a meta.', 'Conta pela data de publicação dos artigos. Meta: 3 por semana.'],
-    blog_indice: ['Nota de 0 a 100 que resume se o artigo prende, espalha e gera contato.', 'Cada métrica é comparada com a média do blog (média = 50). Pesos: leitura completa 25%, tempo engajado 20%, leitores 20%, compartilhamentos 15%, contato 20%. Só entra quem tem 20 leitores ou mais.'],
+    blog_indice: ['Nota de 0 a 100 que resume se o artigo prende, espalha e gera contato.', 'Cada métrica é comparada com a média do blog (média = 50). Pesos: leitura completa 25%, tempo engajado 20%, leitores 20%, compartilhamentos 15%, contato 20%. Entra todo artigo com pelo menos 1 leitor; com poucos leitores a nota oscila bastante, por isso aparece a marca "amostra pequena" abaixo de 5.'],
+    blog_views: ['Quantas vezes os artigos foram abertos.', 'Evento blog_artigo_view. Uma pessoa que abre o mesmo artigo duas vezes conta duas visualizações e um leitor.'],
+    blog_shares: ['Cliques em compartilhar no fim do artigo.', 'blog_compartilhar com LinkedIn, WhatsApp e copiar link. Cliques para assinar a newsletter ficam separados.'],
+    blog_ctas: ['Cliques que levam do artigo para a página de contato.', 'cta_click nas páginas dos artigos: o botão do fim do texto e o "Vamos conversar" do topo.'],
+    blog_serie: ['Movimento diário do blog.', 'Leitores, visualizações e leituras completas por dia no período escolhido, contra o período anterior.'],
+    blog_artigos: ['Todos os artigos publicados com as métricas do período.', 'Clique no nome do artigo para abrir o detalhe: de onde vieram os leitores, até onde leram, o que clicaram e como foi no Google. Clique no título de uma coluna para ordenar.'],
+    blog_origem: ['Canal que trouxe as pessoas até os artigos.', 'Canal da sessão no GA4 (Google, redes sociais, direto, outros sites) para quem viu páginas de artigo. "Entradas" conta quem chegou ao site direto pelo artigo.'],
+    blog_funil: ['Até onde as pessoas leem.', 'Visualizações que chegaram a 25%, 50% e 75% do texto (blog_leitura), ao fim (blog_leitura_completa) e que clicaram em contato.'],
+    blog_acoes: ['O que as pessoas fazem dentro do artigo.', 'Compartilhamentos por rede, newsletter, botões de contato, cards de continue lendo, links internos e redes sociais.'],
+    blog_diag: ['Leitura automática de cada artigo para decidir o próximo passo.', 'Compara visualizações e leitura completa com a mediana do blog. Atrai e segura: repetir. Atrai e perde: ajustar o texto. Segura mas pouca gente vê: distribuir mais. Nem atrai nem segura: revisar título e capa.'],
+    blog_destaques: ['Os campeões do período em cada métrica.', 'Mais lido, mais tempo de tela, mais compartilhado, mais cliques em contato e melhor porta de entrada pelo Google.'],
+    blog_google: ['Como o artigo aparece no Google.', 'Search Console: cliques, impressões, posição média e a busca que mais mostrou o artigo. Tem 2 a 3 dias de atraso.'],
     blog_comp: ['Compartilhamentos a cada 100 leitores.', 'blog_compartilhar (LinkedIn, WhatsApp e copiar link) ÷ leitores × 100.'],
     blog_contato: ['Cliques para contato a cada 100 leitores.', 'cta_click na página do artigo ÷ leitores × 100.'],
     blog_cat: ['Qual tema prende mais o seu leitor.', 'Média do Índice de Aderência dos artigos de cada categoria. Use para escolher as próximas pautas.'],
@@ -141,6 +152,9 @@
     perfil: serie(46, 0.2, 0.3, 0.6, 26, true),
   };
   S.liquidos = S.ganhos.map((g, k) => g - S.perdidos[k]);
+  S.blogLeitores = serie(5, 0.04, 0.3, 0.8, 31, true);
+  S.blogViews = S.blogLeitores.map((v) => Math.round(v * 1.3));
+  S.blogCompletas = S.blogLeitores.map((v) => Math.round(v * 0.45));
   let SEGUIDORES_HOJE = 3184;
 
   const POSTS_BLOG = [
@@ -156,11 +170,11 @@
   ];
   const PESOS = { comp: 0.25, tempo: 0.2, l: 0.2, sh: 0.15, ct: 0.2 };
   function calcularIndice() {
-    const validos = POSTS_BLOG.filter((p) => p.l >= 20);
+    const validos = POSTS_BLOG.filter((p) => p.l > 0);
     const media = {};
     for (const k of Object.keys(PESOS)) media[k] = soma(validos.map((p) => p[k])) / validos.length || 1;
     for (const p of POSTS_BLOG) {
-      p.valido = p.l >= 20;
+      p.valido = p.l > 0;
       p.indice = p.valido ? Math.round(soma(Object.keys(PESOS).map((k) => PESOS[k] * clamp((50 * p[k]) / (media[k] || 1), 0, 100)))) : null;
     }
   }
@@ -297,6 +311,151 @@
       </article>`;
     }).join('')}</div>`;
   }
+  // ---------- blog: peças da tela ----------
+  let ORD_BLOG = { k: 'indice', dir: -1 };
+  let ABERTO_BLOG = null;
+  const NOME_REDE = { linkedin: 'LinkedIn', whatsapp: 'WhatsApp', copiar_link: 'Copiar link', outro: 'Outro' };
+  const NOME_LOCAL = { menu_topo: 'Botão do topo', fim_artigo: 'Fim do artigo', rodape: 'Rodapé', botao_flutuante: 'Botão flutuante', 'c-blog': 'Convite do fim do artigo', contato: 'Convite do fim do artigo' };
+  function barrasLista(lista, emPct) {
+    if (!lista || !lista.length) return '<div class="card-s">Sem dados no período.</div>';
+    const total = soma(lista.map((x) => x[1])) || 1;
+    const max = Math.max(...lista.map((x) => x[1])) || 1;
+    return lista.slice(0, 7).map(([nome, v]) => `<div class="hbar"><span>${esc(nome)}</span><div class="bar"><span style="width:${(v / max) * 100}%"></span></div><b>${emPct ? `${n((v / total) * 100, 0)}%` : n(v)}</b></div>`).join('');
+  }
+  function funilBlog(f) {
+    const v = f.v || 0;
+    const etapas = [['Abriram', v]];
+    if (f.temProg) etapas.push(['Leram 25%', f.p25], ['Leram 50%', f.p50], ['Leram 75%', f.p75]);
+    etapas.push(['Leram até o fim', f.fim], ['Clicaram em contato', f.ct]);
+    const linhasF = etapas.map(([nome, q]) => `<div class="hbar"><span>${nome}</span><div class="bar"><span style="width:${v ? clamp((q / v) * 100, 0, 100) : 0}%"></span></div><b>${v ? `${n((q / v) * 100, 0)}%` : '–'}</b></div>`).join('');
+    return linhasF + (f.temProg ? '' : '<div class="card-s" style="margin-top:8px">As marcas de 25, 50 e 75% aparecem quando a dimensão "progresso" estiver registrada no GA4.</div>');
+  }
+  function acoesBlog(RB) {
+    if (!RB) return barrasLista([['Compartilhar: LinkedIn', 18], ['Compartilhar: WhatsApp', 11], ['Botão de contato', 9], ['Continue lendo', 22], ['Links internos', 7]]);
+    const itens = [];
+    Object.entries(RB.redes || {}).forEach(([r, q]) => itens.push([`Compartilhar: ${NOME_REDE[r] || r}`, q]));
+    if (!Object.keys(RB.redes || {}).length && RB.sh) itens.push(['Compartilhamentos', RB.sh]);
+    if (RB.news) itens.push(['Assinar a newsletter', RB.news]);
+    const locais = Object.entries(RB.ctaLocais || {});
+    if (locais.length) locais.forEach(([l, q]) => itens.push([`Contato: ${NOME_LOCAL[l] || l}`, q]));
+    else if (RB.ct) itens.push(['Botões de contato', RB.ct]);
+    itens.push(['Continue lendo', RB.cliques.continuar], ['Links internos', RB.cliques.interno], ['Redes sociais', RB.cliques.redes]);
+    const comCliques = itens.filter((x) => x[1] > 0).sort((a, b) => b[1] - a[1]);
+    return comCliques.length ? barrasLista(comCliques) : '<div class="card-s">Ninguém clicou em nada dentro dos artigos no período.</div>';
+  }
+  function mediana(arr) { const a = [...arr].sort((x, y) => x - y); if (!a.length) return 0; const m = Math.floor(a.length / 2); return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; }
+  function diagnostico(p, medV, medC) {
+    if (!p.valido) return { k: 'sem', nome: 'Sem leitura', dica: 'Ninguém abriu no período. Vale repostar nas redes ou linkar em artigos mais lidos.' };
+    const v = p.views || p.l;
+    if (v >= medV && p.comp >= medC) return { k: 'repetir', nome: 'Repetir', dica: 'Atrai e segura. Faça mais artigos nesse tema e formato.' };
+    if (v >= medV) return { k: 'ajustar', nome: 'Ajustar o texto', dica: 'O título atrai, mas o texto perde o leitor no caminho. Encurte a abertura e traga a ideia principal mais cedo.' };
+    if (p.comp >= medC) return { k: 'distribuir', nome: 'Distribuir mais', dica: 'Quem abre lê até o fim, mas pouca gente chega. Leve para o LinkedIn, o Instagram e a newsletter.' };
+    return { k: 'revisar', nome: 'Revisar título e capa', dica: 'Pouca gente abre e pouca gente termina. Teste outro título, resumo e imagem.' };
+  }
+  function medianasBlog() {
+    const lidos = POSTS_BLOG.filter((p) => p.valido);
+    return { medV: mediana(lidos.map((p) => p.views || p.l)), medC: mediana(lidos.map((p) => p.comp)) };
+  }
+  function destaquesBlog() {
+    const lidos = POSTS_BLOG.filter((p) => p.valido);
+    if (!lidos.length) return '<div class="card-s">Nenhum artigo lido no período.</div>';
+    const top = (f, min) => { const l = lidos.filter((p) => f(p) > (min || 0)).sort((a, b) => f(b) - f(a)); return l[0] || null; };
+    const itens = [
+      ['Mais lido', top((p) => p.l), (p) => `${n(p.l)} ${p.l === 1 ? 'leitor' : 'leitores'}`],
+      ['Mais tempo de tela', top((p) => p.tempo), (p) => tempo(p.tempo)],
+      ['Mais compartilhado', top((p) => p.shN || 0), (p) => `${n(p.shN)} ${p.shN === 1 ? 'compartilhamento' : 'compartilhamentos'}`],
+      ['Mais cliques em contato', top((p) => p.ctN || 0), (p) => `${n(p.ctN)} ${p.ctN === 1 ? 'clique' : 'cliques'}`],
+      ['Porta de entrada pelo Google', top((p) => (p.g ? p.g.cliques : 0)), (p) => `${n(p.g.cliques)} ${p.g.cliques === 1 ? 'clique' : 'cliques'} no Google`],
+      ['Melhor índice', top((p) => p.indice || 0), (p) => `índice ${p.indice}`],
+    ];
+    return `<div class="lst">${itens.map(([rot, p, f]) => `<div class="lst-i"><div><small>${rot}</small>${p ? esc(p.t) : '<span class="card-s">Ninguém ainda</span>'}</div><div class="r">${p ? `<b>${f(p)}</b>` : ''}</div></div>`).join('')}</div>`;
+  }
+  function diagnosticoBlog() {
+    const { medV, medC } = medianasBlog();
+    const grupos = { repetir: [], ajustar: [], distribuir: [], revisar: [], sem: [] };
+    POSTS_BLOG.forEach((p) => grupos[diagnostico(p, medV, medC).k].push(p));
+    const blocos = [
+      ['repetir', 'Repetir', 'Atrai e segura o leitor.'],
+      ['distribuir', 'Distribuir mais', 'Segura quem abre, mas pouca gente chega.'],
+      ['ajustar', 'Ajustar o texto', 'Atrai, mas o leitor desiste no meio.'],
+      ['revisar', 'Revisar título e capa', 'Pouca gente abre e pouca termina.'],
+    ];
+    return `<div class="diag">${blocos.map(([k, nome, desc]) => `<div class="diag-b diag-${k}"><b>${nome} <span>${grupos[k].length}</span></b><small>${desc}</small>${grupos[k].length ? `<ul>${grupos[k].map((p) => `<li>${esc(p.t)}</li>`).join('')}</ul>` : ''}</div>`).join('')}</div>
+      ${grupos.sem.length ? `<div class="callout mt"><b>Sem leitores no período (${grupos.sem.length})</b>${grupos.sem.map((p) => esc(p.t)).join(' · ')}. Bons candidatos para repostar nas redes ou linkar nos artigos mais lidos.</div>` : ''}
+      <div class="card-s" style="margin-top:8px">Referência: mediana de ${n(medV, 0)} visualizações e ${n(medC, 0)}% de leitura completa entre os artigos lidos.</div>`;
+  }
+  function temasBlog() {
+    const cats = {};
+    POSTS_BLOG.filter((p) => p.valido).forEach((p) => { (cats[p.c] = cats[p.c] || { i: [], l: 0 }); cats[p.c].i.push(p.indice); cats[p.c].l += p.l; });
+    const lista = Object.entries(cats).map(([c, o]) => [c, Math.round(soma(o.i) / o.i.length), o.i.length, o.l]).sort((a, b) => b[1] - a[1]);
+    if (!lista.length) return '<div class="card-s">Nenhum artigo lido no período.</div>';
+    return lista.map(([c, v, q, l]) => `<div class="hbar"><span>${esc(c)} <small style="color:#8c8c86">(${q} · ${n(l)} leit.)</small></span><div class="bar"><span style="width:${v}%"></span></div><b>${v}</b></div>`).join('');
+  }
+  function detalheBlog(p) {
+    const v = p.views || 0;
+    const org = barrasLista(p.origem, true);
+    const funil = funilBlog({ v, p25: p.p25, p50: p.p50, p75: p.p75, fim: p.completas, ct: p.ctN, temProg: DADOS && DADOS.blog && DADOS.blog.detalhes && DADOS.blog.detalhes.progresso });
+    const acoes = [];
+    Object.entries(p.shRede || {}).forEach(([r, q]) => acoes.push([`Compartilhar: ${NOME_REDE[r] || r}`, q]));
+    if (!Object.keys(p.shRede || {}).length && p.shN) acoes.push(['Compartilhamentos', p.shN]);
+    if (p.news) acoes.push(['Assinar a newsletter', p.news]);
+    const loc = Object.entries(p.ctaLocais || {});
+    if (loc.length) loc.forEach(([l, q]) => acoes.push([`Contato: ${NOME_LOCAL[l] || l}`, q])); else if (p.ctN) acoes.push(['Botões de contato', p.ctN]);
+    acoes.push(['Continue lendo', p.continuar], ['Links internos', p.interno], ['Redes sociais', p.redes]);
+    const acoesF = acoes.filter((x) => x[1] > 0);
+    const g = p.g;
+    const { medV, medC } = medianasBlog();
+    const d = diagnostico(p, medV, medC);
+    return `<div class="bdet">
+      <div class="bdet-d"><span class="tag diag-tag diag-${d.k}">${d.nome}</span> ${d.dica}${p.url ? ` <a class="lnk" href="${esc(p.url)}" target="_blank" rel="noopener">Abrir o artigo</a>` : ''}</div>
+      <div class="bdet-g">
+        <div><div class="bdet-t">De onde vieram</div>${org}${p.entradas ? `<div class="card-s" style="margin-top:6px">${n(p.entradas)} ${p.entradas === 1 ? 'entrou' : 'entraram'} no site por este artigo</div>` : ''}${p.cardIn ? `<div class="card-s">${n(p.cardIn)} ${p.cardIn === 1 ? 'veio' : 'vieram'} de cards do próprio blog</div>` : ''}</div>
+        <div><div class="bdet-t">Até onde leram</div>${funil}</div>
+        <div><div class="bdet-t">O que clicaram</div>${acoesF.length ? barrasLista(acoesF.sort((a, b) => b[1] - a[1])) : '<div class="card-s">Nenhum clique no período.</div>'}</div>
+        <div><div class="bdet-t">No Google ${i('blog_google')}</div>${g ? `<div class="bdet-n"><div><b>${n(g.cliques)}</b><small>cliques</small></div><div><b>${n(g.impressoes)}</b><small>impressões</small></div><div><b>${g.impressoes ? n(g.pos, 1) : '–'}</b><small>posição</small></div></div>${g.busca ? `<div class="card-s" style="margin-top:8px">Busca que mais mostrou: <b>${esc(g.busca)}</b></div>` : ''}` : '<div class="card-s">Sem aparições no Google no período (o Search Console tem 2 a 3 dias de atraso).</div>'}</div>
+      </div>
+    </div>`;
+  }
+  function tabelaBlog() {
+    const { medV, medC } = medianasBlog();
+    const val = (p, k) => (k === 't' ? String(p.t).toLowerCase() : k === 'g' ? (p.g ? p.g.cliques : -1) : k === 'indice' ? (p.indice === null ? -1 : p.indice) : Number(p[k]) || 0);
+    const lista = [...POSTS_BLOG].sort((a, b) => { const x = val(a, ORD_BLOG.k), y = val(b, ORD_BLOG.k); return (x > y ? 1 : x < y ? -1 : 0) * ORD_BLOG.dir || b.l - a.l; });
+    const col = (k, rot, tip, num) => `<th class="${num ? 'n ' : ''}ord" data-ord="${k}" aria-sort="${ORD_BLOG.k === k ? (ORD_BLOG.dir < 0 ? 'descending' : 'ascending') : 'none'}">${rot}${ORD_BLOG.k === k ? (ORD_BLOG.dir < 0 ? ' ↓' : ' ↑') : ''} ${tip ? i(tip) : ''}</th>`;
+    const tend = (p) => (p.lAnt || p.l ? (p.l > p.lAnt ? '<span class="up-s">▲</span>' : p.l < p.lAnt ? '<span class="dn-s">▼</span>' : '') : '');
+    const linhasT = lista.map((p) => {
+      const d = diagnostico(p, medV, medC);
+      const aberto = ABERTO_BLOG === p.id;
+      return `<tr class="brow ${p.valido ? '' : 'apagado'} ${aberto ? 'aberto' : ''}" data-post="${esc(p.id)}">
+        <td><button type="button" class="t-tit lnk-t" data-abrir="${esc(p.id)}" aria-expanded="${aberto}">${esc(p.t)}</button><div class="t-cat">${esc(p.c)}${p.valido && p.l < 5 ? ' · amostra pequena' : ''}</div></td>
+        <td class="n">${n(p.views || 0)}</td>
+        <td class="n">${n(p.l)} ${tend(p)}</td>
+        <td class="n">${p.valido ? tempo(p.tempo) : '–'}</td>
+        <td class="n">${p.valido ? pct(p.comp, 0) : '–'}</td>
+        <td class="n">${n(p.shN || 0)}</td>
+        <td class="n">${n(p.ctN || 0)}</td>
+        <td class="n">${p.g ? n(p.g.cliques) : '–'}</td>
+        <td class="n">${p.indice === null ? '–' : `<div class="score"><div class="bar"><span style="width:${p.indice}%"></span></div><b>${p.indice}</b></div>`}</td>
+        <td><span class="tag diag-tag diag-${d.k}">${d.nome}</span></td>
+      </tr>${aberto ? `<tr class="bdet-row"><td colspan="10">${detalheBlog(p)}</td></tr>` : ''}`;
+    }).join('');
+    return `<div class="tbl-wrap"><table class="tbl tbl-blog"><thead><tr>
+      ${col('t', 'Artigo', '', false)}${col('views', 'Visualiz.', 'blog_views', true)}${col('l', 'Leitores', 'blog_leitores', true)}${col('tempo', 'Tempo', 'blog_tempo', true)}${col('comp', 'Leu tudo', 'blog_completa', true)}${col('shN', 'Compart.', 'blog_shares', true)}${col('ctN', 'Contato', 'blog_ctas', true)}${col('g', 'Google', 'blog_google', true)}${col('indice', 'Índice', 'blog_indice', true)}<th>Próximo passo ${i('blog_diag')}</th>
+    </tr></thead><tbody>${linhasT}</tbody></table></div>`;
+  }
+  function ligarBlog() {
+    if (viewAtual() !== 'blog') return;
+    const v = $('#view');
+    v.querySelectorAll('[data-ord]').forEach((th) => th.addEventListener('click', (e) => {
+      if (e.target.closest('.i')) return;
+      const k = th.dataset.ord;
+      ORD_BLOG = ORD_BLOG.k === k ? { k, dir: -ORD_BLOG.dir } : { k, dir: k === 't' ? 1 : -1 };
+      const y = window.scrollY; render(); window.scrollTo(0, y);
+    }));
+    v.querySelectorAll('[data-abrir]').forEach((b) => b.addEventListener('click', () => {
+      ABERTO_BLOG = ABERTO_BLOG === b.dataset.abrir ? null : b.dataset.abrir;
+      const y = window.scrollY; render(); window.scrollTo(0, y);
+    }));
+  }
   function rankingBlog(limite, compacto_) {
     const lista = POSTS_BLOG.filter((p) => p.valido).sort((a, b) => b.indice - a.indice).slice(0, limite || 99);
     const linhas = lista.map((p, k) => `<tr>
@@ -398,6 +557,9 @@
     envios: { nome: 'Envios no Instagram', serie: 'envios' },
     liquidos: { nome: 'Seguidores líquidos', serie: 'liquidos' },
     interacoes: { nome: 'Interações no Instagram', serie: 'interacoes' },
+    blogLeitores: { nome: 'Leitores', serie: 'blogLeitores' },
+    blogViews: { nome: 'Visualizações', serie: 'blogViews' },
+    blogCompletas: { nome: 'Leituras completas', serie: 'blogCompletas' },
   };
   function graficoCard(id, opcoes, titulo, sub) {
     return `<div class="card" data-graf="${id}" data-opcoes="${opcoes.join(',')}">
@@ -416,7 +578,9 @@
     const atual = fatia(S[GRAF[sel].serie], j.ini, j.fim);
     const ant = fatia(S[GRAF[sel].serie], j.pIni, j.pFim);
     const W = Math.max(300, alvo.clientWidth), H = Math.max(260, Math.min(420, alvo.clientHeight || 260)), pl = 40, pr = 10, pt = 14, pb = 28;
-    const max = Math.max(1, ...atual, ...ant) * 1.12;
+    const bruto = Math.max(1, ...atual, ...ant) * 1.12;
+    const passoY = (() => { const c = bruto / 4; const e = 10 ** Math.floor(Math.log10(c)); const m = c / e; return Math.max(1, (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * e); })();
+    const max = passoY * 4;
     const passo = (W - pl - pr) / Math.max(1, atual.length - 1);
     const x = (k) => pl + k * passo;
     const y = (v) => pt + (H - pt - pb) * (1 - v / max);
@@ -424,7 +588,7 @@
     const area = `${linha(atual)}L${x(atual.length - 1).toFixed(1)},${y(0)}L${x(0)},${y(0)}Z`;
     let grade = '';
     for (let g = 0; g <= 4; g++) {
-      const v = (max / 4) * g;
+      const v = passoY * g;
       grade += `<line x1="${pl}" x2="${W - pr}" y1="${y(v)}" y2="${y(v)}" stroke="#efefea"/><text x="${pl - 8}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="#8c8c86">${compacto(Math.round(v))}</text>`;
     }
     const marcas = Math.min(7, atual.length);
@@ -550,7 +714,7 @@
         </div>
         <div class="card mt">${cardH('Top posts do Instagram', 'Ordenados por envios por alcance', 'top_ig', 'trofeu', '<a class="btn" href="#/instagram">Ver Instagram</a>')}${postsIg(G.posts)}</div>
         <div class="grid g-main mt">
-          <div class="card">${cardH('Top 5 do blog', 'Índice de Aderência no período', 'top_blog', 'livro', '<a class="btn" href="#/blog">Ver ranking completo</a>')}${POSTS_BLOG.some((p) => p.valido) ? rankingBlog(5, true) : '<div class="card-s">Nenhum artigo com 20 leitores ou mais no período.</div>'}</div>
+          <div class="card">${cardH('Top 5 do blog', 'Índice de Aderência no período', 'top_blog', 'livro', '<a class="btn" href="#/blog">Ver ranking completo</a>')}${POSTS_BLOG.some((p) => p.valido) ? rankingBlog(5, true) : '<div class="card-s">Nenhum artigo lido no período.</div>'}</div>
           <div class="card">${cardH('Nota de Presença', 'Junior Sturmer nas redes e na web', 'presenca', 'presenca', '<a class="btn" href="#/presenca">Detalhes</a>')}
             <div class="ring-w">${anel(PRESENCA.nota)}<div><div class="faixa-n">${faixa(PRESENCA.nota)}</div><div class="card-s">${deltaPresenca()} ${PRESENCA.nota90 === null ? 'sem comparação ainda' : 'em relação aos 90 dias anteriores'}</div>
             <div class="faixas">${FAIXAS.map((_, k) => `<span class="${k <= FAIXAS.indexOf(faixa(PRESENCA.nota)) ? 'on' : ''}"></span>`).join('')}</div></div></div>
@@ -600,39 +764,41 @@
     },
 
     blog: {
-      nome: 'Blog', ico: 'blog', sub: 'Além do Logo: o que prende, espalha e gera contato.',
+      nome: 'Blog', ico: 'blog', sub: 'Além do Logo: o que atrai, prende, espalha e gera contato.',
       html() {
-        const validos = POSTS_BLOG.filter((p) => p.valido);
         const RB = real('blog') ? DADOS.blog : null;
-        const leitores = RB ? RB.leitores : soma(POSTS_BLOG.map((p) => p.l));
-        const comp = soma(validos.map((p) => p.comp * p.l)) / soma(validos.map((p) => p.l));
-        const tmp = soma(validos.map((p) => p.tempo * p.l)) / soma(validos.map((p) => p.l));
+        const lidos = POSTS_BLOG.filter((p) => p.valido);
+        const somaP = (k) => soma(POSTS_BLOG.map((p) => Number(p[k]) || 0));
+        const leitores = RB ? RB.leitores : somaP('l');
+        const views = RB ? RB.views : Math.round(somaP('l') * 1.3);
+        const completas = RB ? RB.completas : soma(lidos.map((p) => (p.comp / 100) * p.l * 1.3));
+        const comp = views ? (completas / views) * 100 : 0;
+        const tmp = soma(lidos.map((p) => p.tempo * p.l)) / (soma(lidos.map((p) => p.l)) || 1);
+        const shares = RB ? RB.sh : Math.round(soma(lidos.map((p) => (p.sh * p.l) / 100)));
+        const ctas = RB ? RB.ct : Math.round(soma(lidos.map((p) => (p.ct * p.l) / 100)));
         const metas = metasDoMes();
-        const cats = {};
-        validos.forEach((p) => { (cats[p.c] = cats[p.c] || []).push(p.indice); });
-        const catLista = Object.entries(cats).map(([c, v]) => [c, Math.round(soma(v) / v.length), v.length]).sort((a, b) => b[1] - a[1]);
-        const ord = [...validos].sort((a, b) => b.indice - a.indice);
-        const mediaComp = soma(validos.map((p) => p.comp)) / validos.length;
-        const repetir = ord.slice(0, 3).filter((p) => p.comp > mediaComp);
-        const pior = ord[ord.length - 1] || null;
-        const gerou = POSTS_BLOG.filter((p) => p.gerou > 0).sort((a, b) => b.gerou - a.gerou);
         return `
-        <div class="grid g-kpi-4">
+        <div class="grid g-kpi">
           ${kpi({ ico: 'pessoas', label: 'Leitores', tip: 'blog_leitores', valor: n(leitores), delta: RB ? delta(leitores, RB.leitoresAnt) : delta(leitores, 1290) })}
-          ${kpi({ ico: 'livro', label: 'Leitura completa média', tip: 'blog_completa', valor: validos.length ? pct(comp, 0) : '–', delta: RB ? '' : deltaPts(comp, 51.2), nota: RB ? 'artigos com 20+ leitores' : undefined })}
-          ${kpi({ ico: 'relogio', label: 'Tempo médio por leitor', tip: 'blog_tempo', valor: validos.length ? tempo(tmp) : '–', delta: RB ? '' : delta(tmp, 181), nota: RB ? 'artigos com 20+ leitores' : undefined })}
-          ${kpi({ ico: 'alvo', label: 'Posts publicados no mês', tip: 'blog_posts', valor: `${metas.blog.atual}<small>/${metas.blog.meta}</small>`, nota: 'meta de 3 por semana' })}
+          ${kpi({ ico: 'olho', label: 'Visualizações', tip: 'blog_views', valor: n(views), delta: RB ? delta(views, RB.viewsAnt) : '' })}
+          ${kpi({ ico: 'relogio', label: 'Tempo de tela por leitor', tip: 'blog_tempo', valor: lidos.length ? tempo(tmp) : '–', nota: 'média dos artigos lidos' })}
+          ${kpi({ ico: 'livro', label: 'Leitura completa', tip: 'blog_completa', valor: views ? pct(comp, 0) : '–', delta: RB && RB.viewsAnt ? deltaPts(comp, (RB.completasAnt / RB.viewsAnt) * 100) : '' })}
+          ${kpi({ ico: 'envio', label: 'Compartilhamentos', tip: 'blog_shares', valor: n(shares), delta: RB ? delta(shares, RB.shAnt) : '' })}
+          ${kpi({ ico: 'clique', label: 'Cliques em contato', tip: 'blog_ctas', valor: n(ctas), delta: RB ? delta(ctas, RB.ctAnt) : '', nota: `posts no mês: ${metas.blog.atual}/${metas.blog.meta}` })}
         </div>
-        <div class="card mt">${cardH('Ranking de aderência', 'Português e inglês somados por artigo · mínimo de 20 leitores', 'blog_indice', 'trofeu')}${POSTS_BLOG.some((p) => p.valido) ? rankingBlog() : '<div class="card-s">Nenhum artigo com 20 leitores ou mais no período. Aumente o período no topo.</div>'}
-          ${POSTS_BLOG.some((p) => !p.valido) ? `<div class="card-s" style="margin-top:10px">Fora do ranking por ter menos de 20 leitores: ${POSTS_BLOG.filter((p) => !p.valido).map((p) => esc(p.t)).join(', ')}.</div>` : ''}
+        <div class="grid g-main mt">
+          ${graficoCard('blog', ['blogLeitores', 'blogViews', 'blogCompletas'], 'Movimento do blog', 'Diário, no período escolhido')}
+          <div class="card">${cardH('Destaques do período', 'Quem liderou cada métrica', 'blog_destaques', 'trofeu')}${destaquesBlog()}</div>
         </div>
+        <div class="card mt">${cardH('Todos os artigos', `${n(lidos.length)} de ${n(POSTS_BLOG.length)} artigos lidos no período · clique no nome para ver o detalhe`, 'blog_artigos', 'livro')}${tabelaBlog()}</div>
         <div class="grid g-3 mt">
-          <div class="card">${cardH('Temas que mais prendem', 'Índice médio por categoria', 'blog_cat')}${catLista.map(([c, v, q]) => `<div class="hbar"><span>${c} <small style="color:#8c8c86">(${q})</small></span><div class="bar"><span style="width:${v}%"></span></div><b>${v}</b></div>`).join('')}</div>
-          <div class="card">${cardH('Posts que geraram contato', 'Leads que passaram pelo artigo', 'blog_gerou', 'alvo')}${RB ? '<div class="callout"><b>Próxima etapa</b>Para saber qual artigo levou ao contato, o formulário vai passar a registrar o último artigo lido antes do envio.</div>' : `<div class="lst">${gerou.map((p) => `<div class="lst-i"><div>${esc(p.t)}<small>${esc(p.c)}</small></div><div class="r"><b>${p.gerou}</b> ${p.gerou > 1 ? 'leads' : 'lead'}</div></div>`).join('')}</div>`}</div>
-          <div class="card">${cardH('Sinais para a pauta', 'O que repetir e o que revisar', 'blog_sinais', 'faisca')}
-            <div class="callout"><b>Repetir o formato</b>${repetir.map((p) => esc(p.t)).join('; ') || 'Nenhum artigo no top 3 com leitura acima da média.'}</div>
-            <div class="callout mt"><b>Revisar</b>${pior && ord.length > 1 ? `${esc(pior.t)} (índice ${pior.indice}). Teste outro título, resumo e capa antes de escrever mais sobre o tema.` : 'Ainda não há artigos suficientes com 20 leitores ou mais no período.'}</div>
-          </div>
+          <div class="card">${cardH('De onde chegam os leitores', RB ? `${n(RB.entradas)} ${RB.entradas === 1 ? 'pessoa entrou' : 'pessoas entraram'} no site direto por um artigo` : 'Canal de quem leu os artigos', 'blog_origem', 'site')}${barrasLista(RB ? RB.origem : [['Google e buscadores', 41], ['Redes sociais', 33], ['Direto', 18], ['Outros sites', 8]], true)}</div>
+          <div class="card">${cardH('Até onde leem', 'Visualizações que chegaram a cada ponto do texto', 'blog_funil', 'grafico')}${funilBlog(RB ? { v: RB.views, p25: RB.funil.p25, p50: RB.funil.p50, p75: RB.funil.p75, fim: RB.completas, ct: RB.ct, temProg: RB.detalhes && RB.detalhes.progresso } : { v: 1000, p25: 780, p50: 610, p75: 520, fim: 470, ct: 12, temProg: true })}</div>
+          <div class="card">${cardH('O que fazem no artigo', 'Cliques dentro das páginas dos artigos', 'blog_acoes', 'clique')}${acoesBlog(RB)}</div>
+        </div>
+        <div class="grid g-2 mt">
+          <div class="card">${cardH('Diagnóstico dos artigos', 'O que fazer com cada um, pelo que atrai e pelo que segura', 'blog_diag', 'faisca')}${diagnosticoBlog()}</div>
+          <div class="card">${cardH('Temas que mais prendem', 'Índice médio por categoria', 'blog_cat')}${temasBlog()}</div>
         </div>`;
       },
     },
@@ -772,6 +938,7 @@
     $('#view').innerHTML = v.html();
     ativarGraficos();
     ligarPresenca();
+    ligarBlog();
     const bd = $('#ig-desconectar');
     if (bd) bd.addEventListener('click', async () => {
       bd.disabled = true;
@@ -988,13 +1155,15 @@
     REAL.agora = Boolean(DADOS.agora);
     REAL.referencias = Boolean(DADOS.referencias);
     REAL.presenca = Boolean(DADOS.presenca && DADOS.presenca.conectado);
+    if (DADOS.blog && DADOS.blog.serie && DADOS.blog.serie.blogLeitores.length === DIAS) Object.assign(S, DADOS.blog.serie);
     if (REAL.site && DADOS.site.serie && DADOS.site.serie.visitas.length === DIAS) {
       S.visitas = DADOS.site.serie.visitas; S.leads = DADOS.site.serie.leads; S.cta = DADOS.site.serie.cta;
     }
     if (DADOS.blog) {
       REAL.blog = true;
       const porId = Object.fromEntries(DADOS.blog.posts.map((p) => [p.id, p]));
-      const base = LISTA_POSTS ? LISTA_POSTS.map((a) => Object.assign({ id: a.id, t: a.titulo, c: a.categoria, l: 0, comp: 0, tempo: 0, sh: 0, ct: 0 }, porId[a.id] || {}, { t: a.titulo, c: a.categoria })) : DADOS.blog.posts;
+      const vazio = (a) => ({ id: a.id, t: a.titulo, c: a.categoria, l: 0, lAnt: 0, views: 0, viewsAnt: 0, p25: 0, p50: 0, p75: 0, completas: 0, comp: 0, tempo: 0, shN: 0, shRede: {}, news: 0, sh: 0, ctN: 0, ct: 0, interno: 0, redes: 0, continuar: 0, cardIn: 0, origem: [], entradas: 0, ctaLocais: {}, g: null });
+      const base = LISTA_POSTS ? LISTA_POSTS.map((a) => Object.assign(vazio(a), porId[a.id] || {}, { t: a.titulo, c: a.categoria, url: a.url, data: a.data })) : DADOS.blog.posts;
       POSTS_BLOG.length = 0;
       base.forEach((p) => POSTS_BLOG.push(Object.assign({ gerou: 0 }, p)));
       calcularIndice();

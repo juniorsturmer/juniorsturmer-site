@@ -5,6 +5,7 @@ import { sessaoValida, env, CABECALHOS_PRIVADOS } from '../lib/sessao.mjs';
 import { ga4Lote, ga4TempoReal, searchConsole, linhas } from '../lib/google.mjs';
 import { dadosPainel as dadosInstagram } from '../lib/instagram.mjs';
 import { dadosPresenca, coletarSeVelho } from '../lib/presenca.mjs';
+import { dadosBlog } from '../lib/blog-dados.mjs';
 
 const json = (dados, status = 200) =>
   new Response(JSON.stringify(dados), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', ...CABECALHOS_PRIVADOS } });
@@ -101,67 +102,19 @@ async function dadosSite(P) {
   };
 }
 
-async function dadosPaginasEBlog(P) {
-  const filtroBlog = { filter: { fieldName: 'pagePath', stringFilter: { matchType: 'CONTAINS', value: '/blog/' } } };
-  const [paginas, leitores, evBlog, mapa, engaj] = await ga4Lote([
-    { dateRanges: [P.atual], dimensions: dims('pagePath'), metrics: mets('screenPageViews'), orderBys: desc('screenPageViews'), limit: 6 },
-    { dateRanges: [P.atual], dimensions: dims('customEvent:post_id', 'customEvent:post_titulo', 'customEvent:post_categoria'), metrics: mets('activeUsers', 'eventCount'), dimensionFilter: evento('blog_artigo_view'), limit: 300 },
-    { dateRanges: [P.atual], dimensions: dims('customEvent:post_id', 'eventName'), metrics: mets('eventCount'), dimensionFilter: eventos(['blog_leitura_completa', 'blog_compartilhar']), limit: 600 },
-    { dateRanges: [P.atual], dimensions: dims('pagePath', 'customEvent:post_id'), metrics: mets('eventCount'), dimensionFilter: evento('blog_artigo_view'), limit: 600 },
-    { dateRanges: [P.atual], dimensions: dims('pagePath'), metrics: mets('userEngagementDuration', 'activeUsers'), dimensionFilter: filtroBlog, limit: 600 },
-  ]);
+async function dadosPaginas(P) {
   const doInstagram = { filter: { fieldName: 'sessionSource', stringFilter: { matchType: 'CONTAINS', value: 'instagram', caseSensitive: false } } };
-  const [cta, leitoresTotal, igUsuarios, igLeads] = await ga4Lote([
-    { dateRanges: [P.atual], dimensions: dims('pagePath'), metrics: mets('eventCount'), dimensionFilter: { andGroup: { expressions: [evento('cta_click'), filtroBlog] } }, limit: 600 },
-    { dateRanges: [P.atual, P.ant], metrics: mets('activeUsers'), dimensionFilter: evento('blog_artigo_view') },
+  const [paginas, igUsuarios, igLeads] = await ga4Lote([
+    { dateRanges: [P.atual], dimensions: dims('pagePath'), metrics: mets('screenPageViews'), orderBys: desc('screenPageViews'), limit: 6 },
     { dateRanges: [P.atual], metrics: mets('activeUsers'), dimensionFilter: doInstagram },
     { dateRanges: [P.atual], metrics: mets('eventCount'), dimensionFilter: { andGroup: { expressions: [evento('generate_lead'), doInstagram] } } },
   ]);
   const primeiro = (rel) => { const l = linhas(rel)[0]; return l ? l.mets[0] : 0; };
-
   const pagLinhas = linhas(paginas);
   const totalPag = pagLinhas.reduce((s, l) => s + l.mets[0], 0) || 1;
-
-  const posts = {};
-  const post = (id) => (posts[id] = posts[id] || { id, t: id, c: '', l: 0, views: 0, completas: 0, sh: 0, engaj: 0, usuariosPag: 0, ct: 0 });
-  for (const l of linhas(leitores)) {
-    if (!l.dims[0] || l.dims[0] === '(not set)') continue;
-    const p = post(l.dims[0]);
-    p.l += l.mets[0]; p.views += l.mets[1];
-    if (l.dims[1] && l.dims[1] !== '(not set)') p.t = l.dims[1];
-    if (l.dims[2] && l.dims[2] !== '(not set)') p.c = l.dims[2];
-  }
-  for (const l of linhas(evBlog)) {
-    if (!posts[l.dims[0]]) continue;
-    if (l.dims[1] === 'blog_leitura_completa') posts[l.dims[0]].completas += l.mets[0];
-    if (l.dims[1] === 'blog_compartilhar') posts[l.dims[0]].sh += l.mets[0];
-  }
-  const paginaDoPost = {};
-  for (const l of linhas(mapa)) if (l.dims[1] && l.dims[1] !== '(not set)') paginaDoPost[l.dims[0]] = l.dims[1];
-  for (const l of linhas(engaj)) {
-    const id = paginaDoPost[l.dims[0]];
-    if (id && posts[id]) { posts[id].engaj += l.mets[0]; posts[id].usuariosPag += l.mets[1]; }
-  }
-  for (const l of linhas(cta)) {
-    const id = paginaDoPost[l.dims[0]];
-    if (id && posts[id]) posts[id].ct += l.mets[0];
-  }
-  const lt = porPeriodo(leitoresTotal);
-
   return {
     vindosDoInstagram: { usuarios: primeiro(igUsuarios), leads: primeiro(igLeads) },
     paginas: pagLinhas.map((l) => [l.dims[0], Math.round((l.mets[0] / totalPag) * 100)]),
-    blog: {
-      leitores: (lt.atual[0] && lt.atual[0].mets[0]) || 0,
-      leitoresAnt: (lt.ant[0] && lt.ant[0].mets[0]) || 0,
-      posts: Object.values(posts).map((p) => ({
-        id: p.id, t: p.t, c: p.c || 'Sem categoria', l: p.l,
-        comp: p.views ? Math.min(100, (p.completas / p.views) * 100) : 0,
-        tempo: p.usuariosPag ? p.engaj / p.usuariosPag : 0,
-        sh: p.l ? (p.sh / p.l) * 100 : 0,
-        ct: p.l ? (p.ct / p.l) * 100 : 0,
-      })),
-    },
   };
 }
 
@@ -245,15 +198,18 @@ export default async (req) => {
   const saida = { conexoes, periodo, geradoEm: new Date().toISOString(), hoje: ymd(P.hoje), diasSerie: DIAS_SERIE, erros };
 
   const tarefas = [];
+  const avisosBlog = {};
   if (conexoes.ga4) {
     tarefas.push(tentar(() => dadosSite(P), erros, 'ga4').then((v) => { if (v) saida.site = v; }));
-    tarefas.push(tentar(() => dadosPaginasEBlog(P), erros, 'blog').then((v) => { if (v) { saida.paginas = v.paginas; saida.blog = v.blog; saida.vindosDoInstagram = v.vindosDoInstagram; } }));
+    tarefas.push(tentar(() => dadosPaginas(P), erros, 'paginas').then((v) => { if (v) { saida.paginas = v.paginas; saida.vindosDoInstagram = v.vindosDoInstagram; } }));
+    tarefas.push(tentar(() => dadosBlog(P, DIAS_SERIE, avisosBlog), erros, 'blog').then((v) => { if (v) saida.blog = v; }));
     tarefas.push(tentar(dadosAgora, erros, 'agora').then((v) => { if (v) saida.agora = v; }));
     tarefas.push(tentar(() => dadosReferencias(P), erros, 'referencias').then((v) => { if (v) saida.referencias = v; }));
   }
   if (conexoes.searchConsole) tarefas.push(tentar(() => dadosBuscas(P), erros, 'searchConsole').then((v) => { if (v) saida.buscas = v; }));
   await Promise.all(tarefas);
 
+  if (saida.blog && Object.keys(avisosBlog).length) saida.blog.avisos = avisosBlog;
   saida.demo = !saida.site;
   if (!Object.keys(erros).length) cache.set(chaveCache, { em: Date.now(), dados: saida });
   return json(await comInstagram(saida));

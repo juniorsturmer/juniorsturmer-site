@@ -4,6 +4,7 @@
 import { sessaoValida, env, CABECALHOS_PRIVADOS } from '../lib/sessao.mjs';
 import { ga4Lote, ga4TempoReal, searchConsole, linhas } from '../lib/google.mjs';
 import { dadosPainel as dadosInstagram } from '../lib/instagram.mjs';
+import { dadosPresenca, coletarSeVelho } from '../lib/presenca.mjs';
 
 const json = (dados, status = 200) =>
   new Response(JSON.stringify(dados), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', ...CABECALHOS_PRIVADOS } });
@@ -227,13 +228,15 @@ export default async (req) => {
     const agora = conexoes.ga4 ? await tentar(dadosAgora, erros, 'agora') : null;
     return json({ agora, erros });
   }
-  // o cache guarda só Google (GA4 e Search Console); o Instagram é lido do Blobs a cada pedido
+  // o cache guarda só Google (GA4 e Search Console); Instagram e Presença são lidos do Blobs a cada pedido
   const comInstagram = async (base) => {
     const erros = { ...(base.erros || {}) };
     const conexoesAgora = { ...base.conexoes };
     const ig = await tentar(() => dadosInstagram(periodo, DIAS_SERIE), erros, 'instagram');
     if (ig) conexoesAgora.instagram = Boolean(ig.conectado && ig.perfil);
-    return { ...base, conexoes: conexoesAgora, erros, instagram: ig || undefined };
+    await tentar(coletarSeVelho, erros, 'alerts');
+    const presenca = await tentar(dadosPresenca, erros, 'presenca');
+    return { ...base, conexoes: conexoesAgora, erros, instagram: ig || undefined, presenca: presenca || undefined };
   };
   if (emCache && Date.now() - emCache.em < CACHE_MS && url.searchParams.get('novo') !== '1') return json(await comInstagram(emCache.dados));
 

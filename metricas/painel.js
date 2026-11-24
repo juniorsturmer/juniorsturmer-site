@@ -105,7 +105,7 @@
     pr_escala: ['Como cada parte vira nota de 0 a 100.', 'Nota = raiz quadrada (resultado ÷ meta de 12 meses) × 100, limitada a 100. A raiz faz as primeiras conquistas aparecerem mais rápido.'],
     pr_marcos: ['Os marcos que você definiu para se sentir um nome relevante.', 'Marcados como feitos quando uma menção confirmada atende o marco.'],
     pr_mencoes: ['Menções confirmadas por você.', 'Vêm do Google Alerts (depois da sua revisão) ou do cadastro manual.'],
-    pr_revisar: ['Possíveis menções encontradas pelo Google Alerts.', 'O feed traz tudo que cita os nomes monitorados. Você confirma o que é você e escolhe o tipo, que define os pontos.'],
+    pr_revisar: ['Possíveis menções encontradas pelo Google Alerts.', 'Os 3 alertas são lidos a cada 6 horas. O feed traz tudo que cita os nomes monitorados; páginas do seu próprio site já saem descartadas. Você confirma o que é você e escolhe o tipo, que define os pontos.'],
     ig_conectar: ['Liga o painel à sua conta profissional do Instagram.', 'Você autoriza só a leitura (perfil e estatísticas) na tela da Meta, escolhendo a Página ligada ao @juniorsturmer. O acesso fica guardado no servidor, não expira e pode ser removido no Facebook em Configurações > Integrações comerciais.'],
     pr_nomes: ['Nomes que o Google Alerts monitora.', 'Junior Sturmer, Jacir Sturmer e Selzler Sturmer pegam todas as formas do seu nome completo. "Jacir Junior" é comum demais, então só conta junto com TruckPag.'],
   };
@@ -168,7 +168,7 @@
   // ---------- dados reais (preenchidos por /api/painel/dados) ----------
   let DADOS = null;
   let LISTA_POSTS = null;
-  const REAL = { site: false, blog: false, buscas: false, agora: false, referencias: false, ig: false };
+  const REAL = { site: false, blog: false, buscas: false, agora: false, referencias: false, ig: false, presenca: false };
   const real = (k) => REAL[k];
   const tagExemplo = '<span class="tag alerta" title="Esta parte ainda usa dados de exemplo">exemplo</span>';
 
@@ -733,14 +733,7 @@
             <div class="callout mt"><b>Nomes monitorados ${i('pr_nomes')}</b>Junior Sturmer · Jacir Sturmer · Jacir Sturmer Junior · Jacir Alexandre Selzler Sturmer Junior · Jacir Junior (só com TruckPag)</div>
           </div>
         </div>
-        <div class="grid g-2 mt">
-          <div class="card">${cardH('Menções confirmadas', 'Pontos por tipo de veículo', 'pr_mencoes', 'mega', '<button class="btn dark" type="button" disabled title="Disponível quando o Google Alerts for conectado">Registrar menção</button>')}
-            <div class="lst">${P.mencoes.map((m) => `<div class="lst-i"><div>${esc(m.t)}<small>${esc(m.v)} · ${m.tipo} · ${m.d}</small></div><div class="r"><b>+${m.p}</b> ${m.p === 1 ? 'pt' : 'pts'}</div></div>`).join('')}</div>
-          </div>
-          <div class="card">${cardH('Para revisar', 'Encontradas pelo Google Alerts', 'pr_revisar', 'lupa')}
-            <div class="lst">${P.revisar.map((m) => `<div class="lst-i"><div>${esc(m.t)}<small>${esc(m.v)}</small></div><div class="acoes"><button class="btn" type="button" disabled>É você</button><button class="btn" type="button" disabled>Descartar</button></div></div>`).join('')}</div>
-          </div>
-        </div>
+        ${presencaListas()}
         <div class="card mt">${cardH('Presença nas IAs', `${citacoes} citação${citacoes === 1 ? '' : 'ões'} em ${P.ia.perguntas.length * P.ia.ias.length} checagens · checagem mensal`, 'pr_ia', 'faisca')}
           <div class="tbl-wrap"><table class="ia"><thead><tr><th>Pergunta</th>${P.ia.ias.map((x) => `<th>${x}</th>`).join('')}</tr></thead><tbody>
           ${P.ia.perguntas.map((q, k) => `<tr><td>${esc(q)}</td>${P.ia.res[k].map((r) => `<td><span class="d ${r ? 'ok' : ''}" title="${r ? 'Citou você' : 'Não citou'}"></span></td>`).join('')}</tr>`).join('')}
@@ -777,6 +770,7 @@
     document.title = `${v.nome} | Painel de métricas`;
     $('#view').innerHTML = v.html();
     ativarGraficos();
+    ligarPresenca();
     const bd = $('#ig-desconectar');
     if (bd) bd.addEventListener('click', async () => {
       bd.disabled = true;
@@ -833,6 +827,107 @@
     return `<div class="kpi-v" style="font-size:44px">${n(ag.usuarios)}</div><div class="card-s" style="margin:6px 0 14px">${ag.usuarios === 1 ? 'pessoa navegando' : 'pessoas navegando'}</div>
       <div class="lst">${ag.paginas.length ? ag.paginas.map(([t, q]) => `<div class="lst-i"><div>${esc(t)}</div><div class="r">${n(q)}</div></div>`).join('') : '<div class="lst-i"><div><small>Ninguém no site agora.</small></div></div>'}</div>`;
   }
+  // ---------- Presença: menções (Google Alerts + cadastro manual) ----------
+  const OPCOES_TIPO = [
+    ['portal', 'Portal ou jornal · 5 pts'],
+    ['entrevista|entrevista', 'Entrevista em portal nacional de marketing · marco · 4 pts'],
+    ['entrevista', 'Entrevista · 4 pts'],
+    ['palestra|palestra', 'Palestra em evento do setor · marco · 4 pts'],
+    ['palestra', 'Palestra · 4 pts'],
+    ['podcast', 'Podcast · 4 pts'],
+    ['artigo', 'Artigo assinado · 4 pts'],
+    ['blog', 'Blog de nicho · 2 pts'],
+    ['social', 'Post de terceiros · 1 pt'],
+  ];
+  const selTipo = (attr) => `<select class="sel" ${attr} aria-label="Tipo da menção"><option value="">Tipo</option>${OPCOES_TIPO.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select>`;
+  function dataCurta(ymd) {
+    if (!ymd) return '';
+    const [a, m, d] = ymd.split('-').map(Number);
+    return `${String(d).padStart(2, '0')} ${MESES[m - 1]}${a !== HOJE.getFullYear() ? ` ${a}` : ''}`;
+  }
+  const pontosDe = (x) => (DADOS.presenca.tipos[x.tipo] || { pontos: 0 }).pontos;
+  const nomeTipo = (x) => (DADOS.presenca.tipos[x.tipo] || { nome: x.tipo }).nome;
+  const tituloLink = (x) => (x.link ? `<a class="pr-t" href="${esc(x.link)}" target="_blank" rel="noopener noreferrer">${esc(x.titulo)}</a>` : `<span class="pr-t">${esc(x.titulo)}</span>`);
+  function presencaListas() {
+    const P = PRESENCA;
+    if (!REAL.presenca) {
+      return `<div class="grid g-2 mt">
+          <div class="card">${cardH('Menções confirmadas', 'Pontos por tipo de veículo', 'pr_mencoes', 'mega', '<button class="btn dark" type="button" disabled title="Disponível quando o Google Alerts for conectado">Registrar menção</button>')}
+            <div class="lst">${P.mencoes.map((m) => `<div class="lst-i"><div>${esc(m.t)}<small>${esc(m.v)} · ${m.tipo} · ${m.d}</small></div><div class="r"><b>+${m.p}</b> ${m.p === 1 ? 'pt' : 'pts'}</div></div>`).join('')}</div>
+          </div>
+          <div class="card">${cardH('Para revisar', 'Encontradas pelo Google Alerts', 'pr_revisar', 'lupa')}
+            <div class="lst">${P.revisar.map((m) => `<div class="lst-i"><div>${esc(m.t)}<small>${esc(m.v)}</small></div><div class="acoes"><button class="btn" type="button" disabled>É você</button><button class="btn" type="button" disabled>Descartar</button></div></div>`).join('')}</div>
+          </div>
+        </div>`;
+    }
+    const D = DADOS.presenca;
+    const c = D.coleta;
+    const subRev = c ? `Google Alerts · lido ${horaColeta(c.em)} · ${D.feeds} ${D.feeds === 1 ? 'alerta' : 'alertas'}` : 'Google Alerts · primeira leitura em andamento';
+    const conf = D.confirmadas.map((x) => `<div class="lst-i"><div class="pr-i">${tituloLink(x)}<small>${esc(x.fonte || (x.origem === 'manual' ? 'cadastro manual' : ''))} · ${esc(nomeTipo(x))}${x.marco ? ' · marco' : ''} · ${dataCurta(x.data)} · <button class="lnk" type="button" data-pr="voltar" data-id="${esc(x.id)}">${x.origem === 'manual' ? 'remover' : 'voltar para revisão'}</button></small></div><div class="r"><b>+${pontosDe(x)}</b> ${pontosDe(x) === 1 ? 'pt' : 'pts'}</div></div>`).join('');
+    const rev = D.revisar.map((x) => `<div class="lst-i pr-rev" data-linha="${esc(x.id)}"><div class="pr-i">${tituloLink(x)}<small>${esc(x.fonte)} · ${dataCurta(x.data)}${x.alerta ? ` · alerta ${esc(x.alerta)}` : ''}</small>${x.trecho ? `<small class="pr-trecho">${esc(x.trecho)}</small>` : ''}</div><div class="acoes">${selTipo(`data-tipo="${esc(x.id)}"`)}<button class="btn dark" type="button" data-pr="confirmar" data-id="${esc(x.id)}">É você</button><button class="btn" type="button" data-pr="descartar" data-id="${esc(x.id)}">Descartar</button></div></div>`).join('');
+    const form = `<form class="pr-form" id="pr-form" hidden>
+        <input class="inp" name="titulo" required maxlength="220" placeholder="Título ou assunto">
+        <input class="inp" name="fonte" maxlength="80" placeholder="Veículo (ex.: Meio & Mensagem)">
+        <input class="inp" name="link" placeholder="Link (opcional)">
+        <div class="pr-form-l"><input class="inp" type="date" name="data" value="${ymdLocal(HOJE)}">${selTipo('name="tipo" required')}</div>
+        <div class="acoes"><button class="btn dark" type="submit">Salvar menção</button><button class="btn" type="button" data-pr="fechar-form">Cancelar</button></div>
+      </form>`;
+    return `<div class="grid g-2 mt">
+          <div class="card">${cardH('Menções confirmadas', `${D.confirmadas.length} ${D.confirmadas.length === 1 ? 'menção' : 'menções'} · pontos por tipo de veículo`, 'pr_mencoes', 'mega', '<button class="btn dark" type="button" data-pr="abrir-form">Registrar menção</button>')}
+            ${form}
+            <div class="lst pr-lst">${conf || '<div class="lst-i"><div><small>Nenhuma menção confirmada ainda. Confirme as encontradas pelo Google Alerts ou registre uma à mão.</small></div></div>'}</div>
+          </div>
+          <div class="card">${cardH('Para revisar', subRev, 'pr_revisar', 'lupa', '<button class="btn" type="button" data-pr="coletar">Buscar agora</button>')}
+            <div class="lst pr-lst">${rev || '<div class="lst-i"><div><small>Nada para revisar. Os alertas são lidos a cada 6 horas e cada vez que você abre o painel depois disso.</small></div></div>'}</div>
+            ${D.descartadas ? `<div class="card-s" style="margin-top:10px">${n(D.descartadas)} ${D.descartadas === 1 ? 'resultado descartado' : 'resultados descartados'} (inclui páginas do seu próprio site)</div>` : ''}
+          </div>
+        </div>`;
+  }
+  async function acaoPresenca(rota, corpo, botao) {
+    if (botao) botao.disabled = true;
+    try {
+      const r = await fetch(`/api/painel/presenca/${rota}`, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo || {}) });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 401) { location.reload(); return; }
+      if (!r.ok) throw new Error(j.erro || `erro ${r.status}`);
+      DADOS.presenca = j.presenca;
+      atualizarPresenca();
+      render();
+    } catch (e) {
+      if (botao) botao.disabled = false;
+      console.warn('[presença]', e.message);
+      const box = $('#pr-msg') || Object.assign(document.createElement('div'), { id: 'pr-msg', className: 'callout mt' });
+      box.textContent = `Não foi possível salvar: ${e.message}`;
+      $('#view').prepend(box);
+    }
+  }
+  function ligarPresenca() {
+    const v = $('#view');
+    if (!REAL.presenca || viewAtual() !== 'presenca') return;
+    v.querySelectorAll('[data-pr]').forEach((b) => b.addEventListener('click', () => {
+      const id = b.dataset.id;
+      const acao = b.dataset.pr;
+      if (acao === 'abrir-form') { $('#pr-form').hidden = false; $('#pr-form [name=titulo]').focus(); return; }
+      if (acao === 'fechar-form') { $('#pr-form').hidden = true; return; }
+      if (acao === 'coletar') { b.textContent = 'buscando...'; acaoPresenca('coletar', {}, b); return; }
+      if (acao === 'descartar') { acaoPresenca('marcar', { id, estado: 'descartado' }, b); return; }
+      if (acao === 'voltar') { acaoPresenca('marcar', { id, estado: 'novo' }, b); return; }
+      if (acao === 'confirmar') {
+        const sel = v.querySelector(`[data-tipo="${CSS.escape(id)}"]`);
+        if (!sel.value) { sel.classList.add('falta'); sel.focus(); return; }
+        const [tipo, marco] = sel.value.split('|');
+        acaoPresenca('marcar', { id, estado: 'confirmado', tipo, marco }, b);
+      }
+    }));
+    v.querySelectorAll('.sel').forEach((s) => s.addEventListener('change', () => s.classList.remove('falta')));
+    const f = $('#pr-form');
+    if (f) f.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const d = Object.fromEntries(new FormData(f));
+      const [tipo, marco] = String(d.tipo || '').split('|');
+      acaoPresenca('cadastrar', { ...d, tipo, marco }, f.querySelector('[type=submit]'));
+    });
+  }
   function deltaPresenca() {
     return PRESENCA.nota90 === null ? '<span class="delta flat">1ª medição</span>' : deltaPts(PRESENCA.nota, PRESENCA.nota90, ' pts');
   }
@@ -841,6 +936,14 @@
     const c = Object.fromEntries(PRESENCA.comp.map((x) => [x.k, x]));
     if (real('buscas')) { const im = DADOS.buscas.marca90.impressoes; Object.assign(c.pr_busca, { real: true, nota: nota(im, 1500), det: `${n(im)} impressões em 90 dias` }); }
     if (real('referencias')) { const d = DADOS.referencias.length; Object.assign(c.pr_sites, { real: true, nota: nota(d, 10), det: `${n(d)} ${d === 1 ? 'domínio' : 'domínios'} em 90 dias` }); }
+    if (real('presenca')) {
+      const corte = ymdLocal(new Date(HOJE.getTime() - 89 * 864e5));
+      const conf = DADOS.presenca.confirmadas;
+      const pts = soma(conf.filter((x) => String(x.data) >= corte).map(pontosDe));
+      Object.assign(c.pr_web, { real: true, nota: nota(pts, 60), det: `${n(pts)} ${pts === 1 ? 'ponto' : 'pontos'} em 90 dias` });
+      PRESENCA.marcos[0].ok = conf.some((x) => x.marco === 'entrevista');
+      PRESENCA.marcos[1].ok = conf.some((x) => x.marco === 'palestra');
+    }
     PRESENCA.nota = Math.round(soma(PRESENCA.comp.map((x) => (x.peso / 100) * x.nota)));
     if (PRESENCA.comp.some((x) => x.real)) PRESENCA.nota90 = null;
   }
@@ -850,6 +953,7 @@
     REAL.buscas = Boolean(DADOS.buscas);
     REAL.agora = Boolean(DADOS.agora);
     REAL.referencias = Boolean(DADOS.referencias);
+    REAL.presenca = Boolean(DADOS.presenca && DADOS.presenca.conectado);
     if (REAL.site && DADOS.site.serie && DADOS.site.serie.visitas.length === DIAS) {
       S.visitas = DADOS.site.serie.visitas; S.leads = DADOS.site.serie.leads; S.cta = DADOS.site.serie.cta;
     }
@@ -880,10 +984,12 @@
     if (!REAL.site) exemplo.push('Site');
     if (!REAL.blog) exemplo.push('Blog');
     if (!REAL.ig) exemplo.push('Instagram');
-    exemplo.push('Presença (menções, marcações e IAs)');
+    exemplo.push(REAL.presenca ? 'Presença (marcações e IAs)' : 'Presença (menções, marcações e IAs)');
     const erros = DADOS && DADOS.erros ? Object.entries(DADOS.erros) : [];
     const ig = DADOS && DADOS.instagram && DADOS.instagram.coleta && DADOS.instagram.coleta.erros ? Object.entries(DADOS.instagram.coleta.erros).filter(([k]) => !k.startsWith('midia:')).slice(0, 3) : [];
     ig.forEach(([k, m]) => erros.push([`instagram ${k}`, m]));
+    const al = DADOS && DADOS.presenca && DADOS.presenca.coleta && DADOS.presenca.coleta.erros ? Object.entries(DADOS.presenca.coleta.erros) : [];
+    al.forEach(([k, m]) => erros.push([`Google Alerts ${k}`, m]));
     const el = $('#demo');
     el.hidden = false;
     const tudo = !REAL.site && !REAL.blog && !REAL.ig;

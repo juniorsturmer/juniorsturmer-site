@@ -134,6 +134,23 @@
     ig_leituras: ['Conclusões prontas a partir dos números do período.', 'Compara formatos, dias, horários, posts que trouxeram seguidores, posts para reaproveitar e os que não repetir, ritmo de publicação, retenção dos reels e descoberta. Verde: manter. Amarelo: atenção. Cinza: informação.'],
     ig_nao_repetir: ['Os posts mais fracos do período e o sinal em que cada um mais perdeu.', 'Posts com diagnóstico "não repetir" e os de "aprofundar" com índice abaixo de 45, do menor índice para o maior. Use para cortar temas, ganchos ou formatos que não funcionam com o seu público.'],
     ig_padroes: ['Em que dia, horário e tamanho de legenda seus posts rendem mais.', 'Índice médio dos posts dos últimos 90 dias (sem os de menos de 3 dias) agrupados por dia da semana, faixa de horário de São Paulo e tamanho da legenda. O destaque em negrito só aparece em grupos com 2 posts ou mais.'],
+    seo_nota: ['Nota de 0 a 100 de quanto a legenda ajuda o post a ser encontrado na busca e enviado.', 'Termo de busca na primeira frase 25, dois ou mais temas do nicho 15, primeira frase curta e com tensão 20, convite natural para enviar 15, até 5 hashtags com 1 específica 10, tamanho de 300 a 900 caracteres em parágrafos 10, fala com quem tem empresa 5. Pesos baseados nas regras de busca do Instagram e no que funcionou nos seus próprios posts.'],
+    seo_lift: ['Quanto o alcance dos posts com o tema difere dos posts sem ele.', 'Alcance mediano dos posts de negócio que têm o tema ÷ alcance mediano dos que não têm. 1,5x quer dizer metade a mais de alcance. Verde a partir de 1,2x, vermelho abaixo de 0,8x. Com menos de 3 posts, leia como pista.'],
+    seo_inicio: ['Parte dos posts de negócio com termo de busca já na primeira frase.', 'Posts com pelo menos um tema do nicho (marca, branding, posicionamento, cliente, vender e outros) na primeira frase ÷ posts de negócio.'],
+    seo_contraste: ['Parte dos posts que abrem quebrando uma crença.', 'Primeiras frases com "ninguém", "quase ninguém", "não é", "nunca", "não te", "sai caro" e parecidas. Nos seus dados, esse tipo de abertura foi o mais enviado.'],
+    seo_convite: ['Se a legenda convida a mandar o post para alguém sem parecer pedido.', 'Natural: "manda pra", "mostra pra", "conhece alguém", "tem um sócio". Pedido direto: "salva", "comenta", "compartilha", "deixa o like". A tabela compara envios por alcance de cada grupo nos seus posts de negócio.'],
+    seo_hash: ['Quantas hashtags você usa e quais funcionam.', 'Média de hashtags por post de negócio. Desde dez/2025 o Instagram aceita no máximo 5 e recomenda poucas e específicas. Genéricas: #marketing, #branding, #marca, #empreendedorismo e parecidas.'],
+    seo_leituras: ['Conclusões prontas sobre as suas legendas.', 'Compara tipos de primeira frase, convite, formato, tamanho, hashtags, termos no início e posts pessoais x negócio, usando todos os posts guardados. Verde: manter. Amarelo: mudar. Cinza: informação.'],
+    seo_avaliador: ['Teste a legenda antes de publicar.', 'Aplica os mesmos critérios da Nota SEO em tempo real. O texto fica salvo só neste navegador até você apagar.'],
+    seo_palavras_t: ['Quais temas do seu nicho acompanham posts com mais alcance e mais envios.', 'Os posts são classificados como negócio quando falam de marca, marketing, cliente, venda e afins. Para cada tema: quantos posts usaram, quantos no início, alcance mediano, comparação com os posts sem o tema, envios e salvos por alcance e índice médio. Correlação, não causa: o tema anda junto com o resultado.'],
+    seo_ganchos: ['Que tipo de abertura faz as pessoas mandarem o post adiante.', 'Primeira frase de cada legenda de negócio classificada em contraste, número, história, pergunta ou afirmação. Envios por alcance somando todos os posts do grupo.'],
+    seo_top_frases: ['As aberturas dos seus posts de negócio que mais circularam.', 'Ordenadas por (envios + salvos) ÷ alcance. Use como modelo de tom e estrutura.'],
+    seo_tamanho: ['Que tamanho de legenda funciona melhor para os seus posts de negócio.', 'Caracteres da legenda inteira, incluindo hashtags.'],
+    seo_tipo: ['Como os posts pessoais e os de negócio circulam.', 'Pessoais: sem nenhum termo de negócio na legenda. Envios por alcance mostram o quanto cada tipo é mandado adiante.'],
+    seo_banco: ['Material pronto para as próximas legendas.', 'Frases e convites escritos a partir das aberturas que mais funcionaram nos seus posts. Termos e hashtags pensados para a busca do Instagram e do Google, que indexa posts públicos de contas profissionais desde jul/2025.'],
+    seo_frases: ['Aberturas para testar.', 'Seguem o padrão das suas frases mais enviadas: curtas, sem tom de aula, quebrando uma crença ou mostrando um custo. Troque o que está entre colchetes.'],
+    seo_convites: ['Fechamentos que fazem a pessoa lembrar de alguém.', 'Funcionam melhor que pedir para salvar ou comentar, porque o envio vira um favor para um amigo e não um pedido seu.'],
+    seo_palavras: ['Termos que donos de empresa digitam quando procuram o que você faz.', 'Use de forma natural, de preferência na primeira ou segunda frase. Uma ou duas por legenda bastam.'],
     ig_conectar: ['Liga o painel à sua conta profissional do Instagram.', 'Você autoriza só a leitura (perfil e estatísticas) na tela da Meta, escolhendo a Página ligada ao @juniorsturmer. O acesso fica guardado no servidor, não expira e pode ser removido no Facebook em Configurações > Integrações comerciais.'],
     pr_nomes: ['Nomes que o Google Alerts monitora.', 'Junior Sturmer, Jacir Sturmer e Selzler Sturmer pegam todas as formas do seu nome completo. "Jacir Junior" é comum demais, então só conta junto com TruckPag.'],
   };
@@ -925,6 +942,326 @@
     }));
   }
 
+  // ---------- Instagram: SEO e alcance das legendas ----------
+  // Tudo calculado no navegador a partir do texto das legendas (legendaTxt) e das métricas de cada post.
+  const normTxt = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  // termos de busca do nicho; cada grupo vale uma vez por legenda
+  const KW_SEO = [
+    { k: 'branding', nome: 'Branding', termos: ['branding'] },
+    { k: 'marca', nome: 'Marca', termos: ['marca', 'marcas', 'marca forte', 'construcao de marca'] },
+    { k: 'posicionamento', nome: 'Posicionamento de marca', termos: ['posicionamento', 'posicionar'] },
+    { k: 'estrategia', nome: 'Estratégia de marca', termos: ['estrategia de marca', 'estrategia', 'estrategico'] },
+    { k: 'marketing', nome: 'Marketing', termos: ['marketing'] },
+    { k: 'identidade', nome: 'Identidade visual e logo', termos: ['identidade visual', 'logo', 'logotipo', 'rebranding'] },
+    { k: 'vendas', nome: 'Vender mais', termos: ['vende', 'vender', 'venda', 'vendas', 'compra', 'comprar', 'compram'] },
+    { k: 'cliente', nome: 'Cliente', termos: ['cliente', 'clientes', 'consumidor'] },
+    { k: 'empresa', nome: 'Empresa e dono de negócio', termos: ['empresa', 'empresas', 'empresario', 'empreendedor', 'dono', 'negocio', 'negocios'] },
+    { k: 'pequenas', nome: 'Pequenas empresas', termos: ['pequenas empresas', 'pequena empresa', 'pequenos negocios', 'pequeno negocio'] },
+    { k: 'confianca', nome: 'Confiança e reputação', termos: ['confianca', 'confia', 'reputacao', 'credibilidade'] },
+    { k: 'preco', nome: 'Preço e valor', termos: ['preco', 'caro', 'barato', 'valor'] },
+    { k: 'b2b', nome: 'Marketing B2B', termos: ['b2b'] },
+    { k: 'setor', nome: 'Transporte, logística e agro', termos: ['transporte', 'transportadora', 'logistica', 'caminhao', 'caminhoneiro', 'frete', 'agro'] },
+    { k: 'conhecidas', nome: 'Nome de marca conhecida', termos: ['brahma', 'madero', 'batavo', 'prati', 'coca-cola', 'coca cola', 'nike', 'apple', 'havaianas', 'natura', 'nubank', 'magalu', 'heineken', 'mcdonald', 'starbucks', 'sadia', 'boticario', 'ambev', 'itau', 'ifood', 'netflix', 'amazon', 'red bull', 'ferrari', 'disney'] },
+  ];
+  const HASH_GENERICAS = new Set(['#marketing', '#branding', '#marca', '#empreendedorismo', '#publicidade', '#design', '#negocios', '#empreendedor', '#sucesso', '#marketingdigital', '#instagram', '#reels', '#viral']);
+  const KW_RX = KW_SEO.map((g) => Object.assign({}, g, { rx: new RegExp(`(^|[^a-z0-9])(${g.termos.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})([^a-z0-9]|$)`) }));
+  const RX_NEGOCIO = /(^|[^a-z])(marca|branding|marketing|empresa|cliente|posicionamento|vende|venda|negocio|logo|publicidade|campanha|empreend|identidade visual|mercado|compra)/;
+  const RX_CONVITE_NATURAL = /(manda (pra|para)|mostra (pra|para)|envia (pra|para)|marca (aquele|aquela|quem|alguem|o socio|a socia)|conhece alguem|tem (um|uma) (amigo|amiga|socio|socia)|isso (aqui )?e (pra|para) (ele|ela|voce)|repassa)/;
+  const RX_CONVITE_PEDIDO = /(salva|comenta|compartilha|deixa (seu|o) like|curte|segue (o perfil|a gente|pra mais))/;
+  function primeiraFrase(txt) {
+    const t = String(txt || '').replace(/@[\w.]+/g, '').replace(/#[\p{L}\p{N}_]+/gu, '').trim();
+    return (t.split(/(?<=[.!?…])\s+|\n/)[0] || '').trim();
+  }
+  function tipoGancho(frase) {
+    const f = normTxt(frase);
+    if (!f) return 'vazio';
+    if (/\?/.test(f)) return 'pergunta';
+    if (/^\d|\b\d+ (sinais|erros|coisas|passos|motivos|perguntas|jeitos|formas|licoes)/.test(f)) return 'numero';
+    if (/(^|[^a-z])(ninguem|quase ninguem|nao e|nao foi|nunca|pare de|esqueca|parou de|nao te|nao salva|nao vende|sai caro|mentira|errado)([^a-z]|$)/.test(f)) return 'contraste';
+    if (/^(eu |minha |meu |quando eu|apliquei|comecei|hoje eu|ontem|passei|aprendi)/.test(f)) return 'historia';
+    return 'afirmacao';
+  }
+  const NOME_GANCHO = { contraste: 'Contraste ou quebra de crença', pergunta: 'Pergunta', numero: 'Número ou lista', historia: 'História em primeira pessoa', afirmacao: 'Afirmação direta', vazio: 'Sem texto' };
+  function avaliarLegenda(txt) {
+    const bruto = String(txt || '');
+    const n0 = normTxt(bruto);
+    const frase = primeiraFrase(bruto);
+    const nf = normTxt(frase);
+    const grupos = KW_RX.filter((g) => g.rx.test(n0)).map((g) => g.k);
+    const gruposFrase = KW_RX.filter((g) => g.rx.test(nf)).map((g) => g.k);
+    const hashtags = (bruto.toLowerCase().match(/#[\p{L}\p{N}_]+/gu) || []);
+    const especificas = hashtags.filter((h) => !HASH_GENERICAS.has(normTxt(h)));
+    const tam = bruto.length;
+    const quebras = (bruto.match(/\n\s*\n|\n/g) || []).length;
+    const gancho = tipoGancho(frase);
+    const natural = RX_CONVITE_NATURAL.test(n0), pedido = RX_CONVITE_PEDIDO.test(n0);
+    const publico = /(^|[^a-z])(empresa|empresas|dono|donos|negocio|empresario|empreendedor|cliente|clientes|lider)/.test(n0);
+    const itens = [
+      { k: 'kw_inicio', nome: 'Termo de busca na primeira frase', max: 25, pts: gruposFrase.length ? 25 : 0, dica: 'Coloque um termo que as pessoas buscam (marca, branding, posicionamento, cliente, vender) já na primeira frase. É o trecho que aparece antes do "mais" e o que a busca lê primeiro.' },
+      { k: 'kw_corpo', nome: 'Dois ou mais temas do nicho no texto', max: 15, pts: grupos.length >= 2 ? 15 : grupos.length === 1 ? 8 : 0, dica: 'Use pelo menos dois temas do nicho no corpo, do jeito que você falaria numa conversa. Sem repetir palavra só para encher.' },
+      { k: 'gancho', nome: 'Primeira frase curta e com tensão', max: 20, pts: (frase && frase.length <= 125 ? 10 : frase ? 4 : 0) + ({ contraste: 10, numero: 10, historia: 8, pergunta: 5 }[gancho] || 0), dica: 'Até 125 caracteres, para caber inteira antes do "mais". Nos seus posts, frases que quebram uma crença ("quase ninguém...", "não te protege de nada") foram as mais enviadas.' },
+      { k: 'convite', nome: 'Convite para enviar que soa natural', max: 15, pts: natural ? 15 : pedido ? 5 : 0, dica: 'Troque "salva e comenta" por algo que a pessoa faria de qualquer jeito: "manda pra aquele sócio que acha que marca é só logo". Nos seus posts, o pedido direto rendeu menos envios que nenhum pedido.' },
+      { k: 'hashtags', nome: 'Até 5 hashtags, com pelo menos 1 específica', max: 10, pts: hashtags.length > 5 ? 0 : !hashtags.length ? 3 : especificas.length ? 10 : 5, dica: 'O Instagram limita a 5 hashtags e diz que poucas e específicas funcionam melhor. Troque #marketing e #branding por termos como #posicionamentodemarca ou #marketingparapequenasempresas.' },
+      { k: 'tamanho', nome: 'Tamanho entre 300 e 900 caracteres, em parágrafos', max: 10, pts: (tam >= 300 && tam <= 900 ? 8 : tam >= 150 ? 5 : tam ? 2 : 0) + (quebras >= 2 ? 2 : 0), dica: 'Nos seus posts de negócio, legendas médias (300 a 900 caracteres) foram as mais enviadas. Quebre em parágrafos curtos.' },
+      { k: 'publico', nome: 'Fala com quem tem empresa', max: 5, pts: publico ? 5 : 0, dica: 'Cite o público (empresa, dono, cliente, negócio) para a busca e para a pessoa se reconhecer no texto.' },
+    ];
+    return { nota: soma(itens.map((x) => x.pts)), itens, frase, gancho, grupos, gruposFrase, hashtags, especificas, tam, natural, pedido, negocio: RX_NEGOCIO.test(n0) };
+  }
+
+  const EXEMPLO_LEGENDAS = [
+    'Quase ninguém compra na primeira vez que te vê.\n\nA pessoa compra quando confia, e confiança na sua marca nasce de te ver aparecer de novo, falando do mesmo jeito.\n\nManda pra quem tá desanimado com o Instagram da empresa.\n\n#posicionamentodemarca #marketing #branding',
+    'Seu Instagram vende ou só aparece? Abre o perfil da sua empresa e responde sim ou não.\n\nSalva pra fazer depois e comenta quantos sim você teve.\n\n#marketing #branding #marca #empreendedorismo',
+    'Tarde no sítio 🌾',
+  ];
+  function postsSeo() {
+    return midiasIg().filter((m) => m.formato !== 'story' && Number((m.i || {}).reach || 0) > 0).map((m, k) => {
+      const base = analiseIg().todos.find((p) => p.id === m.id) || postIg(m);
+      const txt = m.legendaTxt !== undefined ? m.legendaTxt : (REAL.ig ? (m.texto || '') : EXEMPLO_LEGENDAS[k % EXEMPLO_LEGENDAS.length].replace('Quase ninguém compra na primeira vez que te vê.', `${m.texto}.`));
+      return Object.assign({}, base, { txt, seo: avaliarLegenda(txt) });
+    });
+  }
+  const temLegendaCompleta = () => !REAL.ig || DADOS.instagram.midias.some((m) => m.legendaTxt !== undefined);
+  const taxas = (l) => {
+    const alc = soma(l.map((p) => p.alc));
+    return { n: l.length, med: mediana(l.map((p) => p.alc)), env: razao(soma(l.map((p) => p.envN)), alc), sal: razao(soma(l.map((p) => p.salN)), alc), idx: (() => { const x = l.filter((p) => p.indice !== null && !p.recente).map((p) => p.indice); return x.length ? Math.round(media(x)) : null; })() };
+  };
+  let CACHE_SEO = null;
+  function analiseSeo() {
+    const chave = `${REAL.ig}|${DADOS ? DADOS.geradoEm : ''}`;
+    if (CACHE_SEO && CACHE_SEO.chave === chave) return CACHE_SEO.a;
+    const todos = postsSeo();
+    const neg = todos.filter((p) => p.seo.negocio);
+    const pes = todos.filter((p) => !p.seo.negocio);
+    const palavras = KW_SEO.map((g) => {
+      const com = neg.filter((p) => p.seo.grupos.includes(g.k));
+      const sem = neg.filter((p) => !p.seo.grupos.includes(g.k));
+      const a = taxas(com), b = taxas(sem);
+      return { k: g.k, nome: g.nome, com: a, sem: b, inicio: neg.filter((p) => p.seo.gruposFrase.includes(g.k)).length, lift: a.n && b.med ? a.med / b.med : null, liftEnv: a.n && b.env ? a.env / b.env : null };
+    });
+    const ganchos = ['contraste', 'numero', 'historia', 'pergunta', 'afirmacao'].map((t) => Object.assign({ t, nome: NOME_GANCHO[t] }, taxas(neg.filter((p) => p.seo.gancho === t))));
+    const convites = [['Convite natural para enviar', neg.filter((p) => p.seo.natural)], ['Pedido direto (salva, comenta)', neg.filter((p) => !p.seo.natural && p.seo.pedido)], ['Sem convite', neg.filter((p) => !p.seo.natural && !p.seo.pedido)]].map(([nome, l]) => Object.assign({ nome }, taxas(l)));
+    const tamanhos = [['Curta (até 300)', (p) => p.seo.tam <= 300], ['Média (300 a 900)', (p) => p.seo.tam > 300 && p.seo.tam <= 900], ['Longa (mais de 900)', (p) => p.seo.tam > 900]].map(([nome, f]) => Object.assign({ nome }, taxas(neg.filter(f))));
+    const formatos = FORMATOS_FEED.map(([k, nome]) => Object.assign({ nome }, taxas(neg.filter((p) => p.formato === k))));
+    const tags = {};
+    todos.forEach((p) => p.seo.hashtags.forEach((h) => { (tags[h] = tags[h] || []).push(p); }));
+    const hashtags = Object.entries(tags).map(([h, l]) => Object.assign({ h, generica: HASH_GENERICAS.has(normTxt(h)) }, taxas(l))).sort((a, b) => b.n - a.n);
+    const a = { todos, neg, pes, palavras, ganchos, convites, tamanhos, formatos, hashtags, negT: taxas(neg), pesT: taxas(pes) };
+    CACHE_SEO = { chave, a };
+    return a;
+  }
+
+  // ---------- leituras automáticas de SEO ----------
+  function leiturasSeo(S) {
+    const out = [];
+    const min = 3;
+    if (S.neg.length < 5) out.push(['info', `Só ${n(S.neg.length)} posts de negócio guardados até agora. As comparações ficam mais firmes a partir de uns 15.`]);
+    const g = S.ganchos.filter((x) => x.n >= 2).sort((a, b) => b.env - a.env);
+    if (g.length >= 2 && g[0].env > 0) {
+      const resto = S.neg.filter((p) => p.seo.gancho !== g[0].t);
+      const envR = taxas(resto).env;
+      out.push(['bom', `Primeiras frases de <b>${g[0].nome.toLowerCase()}</b> foram as mais enviadas: ${pct(g[0].env, 2)} de envios por alcance${envR ? `, ${n(g[0].env / envR, 1)}x os outros ganchos` : ''} (${n(g[0].n)} posts). Comece as próximas legendas assim.`]);
+    }
+    const nat = S.convites[0], ped = S.convites[1], sem = S.convites[2];
+    if (ped.n >= min && sem.n >= min && ped.env < sem.env) out.push(['alerta', `Posts com pedido direto ("salva", "comenta") tiveram ${pct(ped.env, 2)} de envios, contra ${pct(sem.env, 2)} dos que não pediram nada. O pedido está soando como obrigação. Troque por um convite que a pessoa faria de qualquer jeito.`]);
+    else if (nat.n >= min && nat.env > sem.env) out.push(['bom', `Convites naturais para enviar renderam ${pct(nat.env, 2)} de envios, contra ${pct(sem.env, 2)} sem convite. Continue usando.`]);
+    const f = S.formatos.filter((x) => x.n >= min).sort((a, b) => b.med - a.med);
+    if (f.length >= 2) out.push(['info', `Nos posts de negócio, <b>${f[0].nome.toLowerCase()}</b> têm o maior alcance mediano (${n(f[0].med)}) e <b>${f[f.length - 1].nome.toLowerCase()}</b> o menor (${n(f[f.length - 1].med)}). Para o conteúdo de marca ser encontrado, leve as ideias mais fortes para ${f[0].nome.toLowerCase()}.`]);
+    const t = S.tamanhos.filter((x) => x.n >= min).sort((a, b) => b.env - a.env);
+    if (t.length >= 2) out.push(['info', `Legendas <b>${t[0].nome.split(' (')[0].toLowerCase()}s</b> foram as mais enviadas (${pct(t[0].env, 2)} por alcance). As ${t[t.length - 1].nome.split(' (')[0].toLowerCase()}s ficaram em ${pct(t[t.length - 1].env, 2)}.`]);
+    const usadas = S.neg.filter((p) => p.seo.hashtags.length);
+    if (usadas.length) {
+      const soGen = usadas.filter((p) => !p.seo.especificas.length).length;
+      if (soGen / usadas.length >= 0.4) out.push(['alerta', `${n((soGen / usadas.length) * 100, 0)}% dos posts de negócio com hashtag usam só hashtags genéricas (#marketing, #branding, #marca). Elas concorrem com milhões de posts. Troque ao menos 2 por termos específicos do que você faz.`]);
+    }
+    const semInicio = S.neg.filter((p) => !p.seo.gruposFrase.length).length;
+    if (S.neg.length && semInicio / S.neg.length >= 0.3) out.push(['alerta', `${n((semInicio / S.neg.length) * 100, 0)}% das legendas de negócio não têm nenhum termo de busca na primeira frase. É o trecho que aparece antes do "mais" e o primeiro que a busca lê.`]);
+    const conh = S.palavras.find((x) => x.k === 'conhecidas');
+    if (conh && conh.com.n >= 2 && conh.lift && conh.lift > 1.2) out.push(['bom', `Posts que citam marcas conhecidas tiveram alcance mediano ${n(conh.lift, 1)}x maior. O nome da marca é termo de busca: use no começo da legenda.`]);
+    if (S.pes.length >= min && S.neg.length >= min) out.push(['info', `Posts pessoais: alcance mediano de ${n(S.pesT.med)} e ${pct(S.pesT.env, 2)} de envios. Posts de negócio: ${n(S.negT.med)} e ${pct(S.negT.env, 2)}. Os pessoais trazem gente nova; quando der, feche com uma ligação ao seu tema (marca, cliente, empresa) para quem chegou entender o que você faz.`]);
+    return out;
+  }
+
+  // ---------- conteúdo para as próximas legendas ----------
+  const SEO_PALAVRAS = [
+    ['posicionamento de marca', 'termo que donos de empresa buscam quando sentem que a marca não se diferencia'],
+    ['estratégia de marca', 'combina com bastidores de projeto e decisões que você tomou'],
+    ['branding para empresas', 'versão buscável de "branding"; use no lugar do termo solto'],
+    ['marketing para pequenas empresas', 'busca frequente de quem está começando; casa com os posts de padaria, confeitaria e comércio'],
+    ['identidade visual', 'para posts de logo, rebranding e apresentação de marca'],
+    ['como vender mais', 'puxa quem tem o problema, não quem já é do marketing'],
+    ['confiança do cliente', 'tema dos seus posts mais enviados (quase ninguém compra na primeira vez)'],
+    ['marca forte', 'aparece em busca e em conversa; bom para primeira frase'],
+    ['marketing B2B', 'fala direto com empresa que vende para empresa'],
+    ['nome de marca conhecida', 'Brahma, Madero, Batavo: o nome é busca pronta, use no início'],
+    ['marketing no agro e no transporte', 'sua vivência; use quando o post tiver estrada, sítio ou campo'],
+    ['Cascavel e Paraná', 'para quem busca perto de você, sem limitar o atendimento'],
+  ];
+  const SEO_HASHTAGS = ['#posicionamentodemarca', '#estrategiademarca', '#brandingparaempresas', '#marketingparapequenasempresas', '#identidadevisual', '#marketingb2b', '#marcaforte', '#cascavelpr'];
+  const SEO_FRASES = [
+    ['Contraste', 'Ninguém lembra da empresa que só fala de preço.'],
+    ['Contraste', 'Logo bonito não salva marca confusa.'],
+    ['Contraste', 'Quase toda empresa diz que é diferente. Quase nenhuma mostra onde.'],
+    ['Contraste', 'Seu cliente não compra o melhor produto. Compra o que ele entende primeiro.'],
+    ['Custo', 'Marca fraca cobra juros todo mês, só não aparece no extrato.'],
+    ['Custo', 'Tem empresa pagando caro por não conseguir explicar o que faz em uma frase.'],
+    ['Bastidor', 'Um cliente me perguntou por que o logo dele não vendia. A resposta não estava no logo.'],
+    ['Bastidor', 'Passei a tarde no sítio e voltei com uma lição de marca que nenhum curso me deu.'],
+    ['Marca conhecida', '[Marca conhecida] não ficou grande por causa do produto.'],
+    ['Marca conhecida', 'Repara no que a [marca conhecida] nunca faz nas campanhas dela.'],
+    ['Número', '3 sinais de que a sua marca fala com todo mundo e não convence ninguém.'],
+    ['Tensão', 'Se o seu cliente precisa de 5 minutos pra entender o que você vende, você já perdeu ele.'],
+  ];
+  const SEO_CONVITES = [
+    'Manda pra aquele sócio que ainda acha que marca é só logo.',
+    'Se você conhece alguém abrindo empresa agora, isso aqui é pra ele.',
+    'Mostra pro seu time antes da próxima reunião de marketing.',
+    'Tem um amigo que precisa ler isso e você já sabe quem é.',
+    'Guarda pra reler no dia que bater a vontade de baixar o preço.',
+    'Repassa pra quem vive dizendo que Instagram não vende.',
+  ];
+
+  // ---------- componentes da tela de SEO ----------
+  function subnavIg(ativo) {
+    return `<div class="subnav" role="tablist"><a href="#/instagram" role="tab" aria-selected="${ativo === 'instagram'}">Desempenho</a><a href="#/instagram-seo" role="tab" aria-selected="${ativo === 'seo'}">SEO e alcance</a></div>`;
+  }
+  const corNota = (v) => (v >= 70 ? 'ok' : v >= 45 ? 'mid' : 'low');
+  function medidor(v, grande) {
+    return `<div class="medidor ${grande ? 'lg' : ''} m-${corNota(v)}"><b>${v}</b><small>/100</small><div class="bar"><span style="width:${v}%"></span></div></div>`;
+  }
+  function palavrasHtml(S) {
+    const usadas = S.palavras.filter((p) => p.com.n > 0).sort((a, b) => (b.lift || 0) - (a.lift || 0));
+    const nunca = S.palavras.filter((p) => p.com.n === 0);
+    const linhas = usadas.map((p) => {
+      const cls = p.lift === null ? '' : p.lift >= 1.2 ? 'hi' : p.lift <= 0.8 ? 'lo' : '';
+      return `<tr><td class="t-tit">${esc(p.nome)}${p.com.n < 3 ? '<small>amostra pequena</small>' : ''}</td><td class="n">${n(p.com.n)}<small>${n(p.inicio)} no início</small></td><td class="n">${n(p.com.med)}</td><td class="n ${cls}">${p.lift === null ? '–' : `${n(p.lift, 1)}x`}</td><td class="n">${pct(p.com.env, 2)}</td><td class="n">${pct(p.com.sal, 2)}</td><td class="n">${p.com.idx === null ? '–' : p.com.idx}</td></tr>`;
+    }).join('');
+    return `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Tema</th><th class="n">Posts</th><th class="n">Alcance mediano</th><th class="n">vs sem o tema ${i('seo_lift')}</th><th class="n">Envios ${i('ig_envios')}</th><th class="n">Salvos ${i('ig_salvos')}</th><th class="n">Índice ${i('ig_indice')}</th></tr></thead><tbody>${linhas || '<tr><td colspan="7" class="card-s">Nenhum tema do nicho encontrado nas legendas.</td></tr>'}</tbody></table></div>
+      ${nunca.length ? `<div class="callout mt"><b>Temas que você ainda não usa</b>${nunca.map((p) => esc(p.nome)).join(' · ')}</div>` : ''}`;
+  }
+  function gruposHtml(lista, rotulo) {
+    const com = lista.filter((x) => x.n > 0);
+    if (!com.length) return '<div class="card-s">Sem posts suficientes.</div>';
+    const max = Math.max(...com.map((x) => x.env)) || 1;
+    return `<div class="tbl-wrap"><table class="tbl tbl-mini"><thead><tr><th>${rotulo}</th><th class="n">Posts</th><th class="n">Alcance mediano</th><th class="n">Envios</th></tr></thead><tbody>${lista.map((x) => `<tr class="${x.n ? '' : 'apagado'}"><td>${esc(x.nome)}</td><td class="n">${n(x.n)}</td><td class="n">${x.n ? n(x.med) : '–'}</td><td class="n"><div class="score"><div class="bar"><span style="width:${(x.env / max) * 100}%"></span></div><b>${x.n ? pct(x.env, 2) : '–'}</b></div></td></tr>`).join('')}</tbody></table></div>`;
+  }
+  function melhoresGanchos(S) {
+    const l = S.neg.filter((p) => p.seo.frase && !p.recente).sort((a, b) => (b.envN + b.salN) / b.alc - (a.envN + a.salN) / a.alc).slice(0, 6);
+    if (!l.length) return '<div class="card-s">Sem posts de negócio ainda.</div>';
+    return `<div class="lst">${l.map((p) => `<div class="lst-i lst-top"><div class="ig-cel">${thumbPost(p, 'mini')}<div>${linkPost(p, `“${esc(p.seo.frase)}”`)}<small>${p.f} · ${NOME_GANCHO[p.seo.gancho]} · ${n(p.alc)} de alcance · ${n(p.envN)} envios · ${n(p.salN)} salvos</small></div></div></div>`).join('')}</div>`;
+  }
+  function hashtagsHtml(S) {
+    const l = S.hashtags.slice(0, 12);
+    if (!l.length) return '<div class="card-s">Nenhuma hashtag usada.</div>';
+    return `<div class="lst">${l.map((h) => `<div class="lst-i"><div>${esc(h.h)} ${h.generica ? '<span class="tag alerta">genérica</span>' : '<span class="tag ok">específica</span>'}<small>${n(h.n)} posts · alcance mediano ${n(h.med)}</small></div><div class="r"><b>${pct(h.env, 2)}</b><small>envios</small></div></div>`).join('')}</div>
+      <div class="callout mt"><b>Para testar no lugar das genéricas</b>${SEO_HASHTAGS.map((h) => `<button type="button" class="chip-c" data-copiar="${esc(h)}">${esc(h)}</button>`).join('')}</div>`;
+  }
+  let ORD_SEO = { k: 'dia', dir: -1 };
+  function tabelaSeo(S) {
+    const j = janela();
+    const l = S.neg.filter((p) => noPeriodo(p.dia, j.ini, j.fim));
+    if (!l.length) return '<div class="card-s">Nenhum post de negócio no período. Escolha 90 dias no topo para ver mais.</div>';
+    const val = (p, k) => (k === 'nota' ? p.seo.nota : k === 'dia' ? p.dia : k === 'indice' ? (p.indice === null ? -1 : p.indice) : p[k] === null ? -1 : p[k]);
+    const lista = [...l].sort((a, b) => { const x = val(a, ORD_SEO.k), y = val(b, ORD_SEO.k); return (x > y ? 1 : x < y ? -1 : 0) * ORD_SEO.dir; });
+    const col = (k, rot, tip) => `<th class="n ord" data-ordseo="${k}">${rot}${ORD_SEO.k === k ? (ORD_SEO.dir < 0 ? ' ↓' : ' ↑') : ''} ${tip ? i(tip) : ''}</th>`;
+    const ICON = (ok) => `<span class="ck ${ok === 2 ? 'ok' : ok === 1 ? 'mid' : ''}"></span>`;
+    const nivel = (it) => (it.pts >= it.max ? 2 : it.pts > 0 ? 1 : 0);
+    return `<div class="tbl-wrap"><table class="tbl tbl-blog tbl-seo"><thead><tr><th>Post</th>${col('dia', 'Data')}${col('nota', 'Nota SEO', 'seo_nota')}<th class="c">Início</th><th class="c">Temas</th><th class="c">Gancho</th><th class="c">Convite</th><th class="c">Hashtags</th><th class="c">Tamanho</th><th class="c">Público</th>${col('alc', 'Alcance')}${col('indice', 'Índice', 'ig_indice')}<th>O que ajustar</th></tr></thead><tbody>
+      ${lista.map((p) => {
+        const pior = [...p.seo.itens].sort((a, b) => (a.pts / a.max) - (b.pts / b.max))[0];
+        return `<tr><td><div class="ig-cel">${thumbPost(p, 'mini')}<div>${linkPost(p, esc(p.seo.frase || p.t))}<small>${p.f}</small></div></div></td><td class="n nw">${dataCurtaIg(p.dia)}</td><td class="n">${medidor(p.seo.nota)}</td>${p.seo.itens.map((it) => `<td class="c" title="${esc(it.nome)}: ${it.pts} de ${it.max}">${ICON(nivel(it))}</td>`).join('')}<td class="n">${n(p.alc)}</td><td class="n">${p.indice === null ? '–' : p.indice}</td><td class="ajuste">${pior.pts >= pior.max ? 'Nada essencial' : esc(pior.nome)}</td></tr>`;
+      }).join('')}
+    </tbody></table></div><div class="card-s" style="margin-top:8px">Bolinha cheia: critério atendido. Meia: atendido em parte. Vazia: faltou. Passe o cursor na bolinha para ver os pontos.</div>`;
+  }
+  const dataCurtaIg = (ymd) => { const d = new Date(ymd + 'T12:00:00'); return `${d.getDate()} ${MESES[d.getMonth()]}`; };
+  function avaliadorHtml() {
+    return `<div class="aval">
+      <div><label class="bdet-t" for="aval-txt">Cole aqui a legenda que você vai publicar</label>
+        <textarea id="aval-txt" class="aval-txt" rows="11" placeholder="Primeira frase forte. Depois o texto. No fim, um convite natural e até 5 hashtags."></textarea>
+        <div class="card-s" id="aval-cont">0 caracteres</div></div>
+      <div id="aval-res">${resultadoAvaliador('')}</div>
+    </div>`;
+  }
+  function resultadoAvaliador(txt) {
+    if (!txt.trim()) return '<div class="aval-vazio">A nota, o que está bom e o que falta aparecem aqui enquanto você escreve.</div>';
+    const r = avaliarLegenda(txt);
+    const S = analiseSeo();
+    const faltam = S.palavras.filter((p) => !r.grupos.includes(p.k) && p.lift && p.lift >= 1 && p.com.n >= 2).sort((a, b) => b.lift - a.lift).slice(0, 4);
+    return `${medidor(r.nota, true)}
+      <div class="aval-frase"><small>Primeira frase (${n(r.frase.length)} de 125 caracteres · ${NOME_GANCHO[r.gancho].toLowerCase()})</small>${esc(r.frase) || '–'}</div>
+      <ul class="aval-lst">${r.itens.map((it) => `<li class="${it.pts >= it.max ? 'ok' : it.pts > 0 ? 'mid' : 'falta'}"><span class="ck ${it.pts >= it.max ? 'ok' : it.pts > 0 ? 'mid' : ''}"></span><div><b>${it.nome}</b> <small>${it.pts} de ${it.max}</small>${it.pts < it.max ? `<p>${it.dica}</p>` : ''}</div></li>`).join('')}</ul>
+      ${r.grupos.length ? `<div class="card-s">Temas encontrados: ${r.grupos.map((k) => esc(KW_SEO.find((g) => g.k === k).nome)).join(', ')}</div>` : ''}
+      ${faltam.length ? `<div class="card-s" style="margin-top:4px">Temas que puxaram mais alcance nos seus posts e não estão aqui: <b>${faltam.map((p) => esc(p.nome)).join(', ')}</b></div>` : ''}`;
+  }
+  function bancoHtml() {
+    return `<div class="banco">
+      <div><div class="bdet-t">Primeiras frases para testar ${i('seo_frases')}</div><div class="lst">${SEO_FRASES.map(([t, f]) => `<div class="lst-i"><div><small>${t}</small>${esc(f)}</div><div class="r"><button type="button" class="btn btn-s" data-copiar="${esc(f)}">Copiar</button></div></div>`).join('')}</div></div>
+      <div><div class="bdet-t">Convites para enviar que não soam forçados ${i('seo_convites')}</div><div class="lst">${SEO_CONVITES.map((f) => `<div class="lst-i"><div>${esc(f)}</div><div class="r"><button type="button" class="btn btn-s" data-copiar="${esc(f)}">Copiar</button></div></div>`).join('')}</div>
+        <div class="bdet-t" style="margin-top:16px">Termos de busca para as próximas legendas ${i('seo_palavras')}</div><div class="lst lst-termos">${SEO_PALAVRAS.map(([p, d]) => `<div class="lst-i"><div><b>${esc(p)}</b><small>${esc(d)}</small></div></div>`).join('')}</div></div>
+    </div>`;
+  }
+  function ligarSeo() {
+    if (viewAtual() !== 'instagram-seo') return;
+    const v = $('#view');
+    const ta = $('#aval-txt');
+    if (ta) {
+      try { ta.value = localStorage.getItem('painel_legenda') || ''; } catch (e) { /* sem armazenamento */ }
+      const upd = () => {
+        $('#aval-res').innerHTML = resultadoAvaliador(ta.value);
+        $('#aval-cont').textContent = `${n(ta.value.length)} caracteres${ta.value.length > 2200 ? ' · passou do limite de 2.200 do Instagram' : ''}`;
+        try { localStorage.setItem('painel_legenda', ta.value); } catch (e) { /* sem armazenamento */ }
+      };
+      ta.addEventListener('input', upd);
+      upd();
+    }
+    v.querySelectorAll('[data-ordseo]').forEach((th) => th.addEventListener('click', (e) => {
+      if (e.target.closest('.i')) return;
+      const k = th.dataset.ordseo;
+      ORD_SEO = ORD_SEO.k === k ? { k, dir: -ORD_SEO.dir } : { k, dir: -1 };
+      const y = window.scrollY; render(); window.scrollTo(0, y);
+    }));
+    v.querySelectorAll('[data-copiar]').forEach((b) => b.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(b.dataset.copiar); const t = b.textContent; b.textContent = 'Copiado'; setTimeout(() => { b.textContent = t; }, 1400); } catch (e) { /* sem área de transferência */ }
+    }));
+  }
+  function telaSeo() {
+    const S = analiseSeo();
+    const negN = S.neg.length;
+    const medNota = negN ? Math.round(media(S.neg.map((p) => p.seo.nota))) : 0;
+    const pctDe = (f) => (negN ? (S.neg.filter(f).length / negN) * 100 : 0);
+    const hashMed = negN ? media(S.neg.map((p) => p.seo.hashtags.length)) : 0;
+    const G = igDados();
+    const aviso = temLegendaCompleta() ? '' : '<div class="callout mt-0" style="margin-bottom:16px"><b>Legendas completas na próxima coleta</b>O painel ainda está lendo só a primeira linha das legendas. A análise fica completa depois da próxima coleta (de hora em hora) ou ao clicar em "Atualizar agora" na aba Desempenho.</div>';
+    const desde = S.todos.length ? dataCurtaIg([...S.todos].map((p) => p.dia).sort()[0]) : '';
+    return `${subnavIg('seo')}${aviso}
+      <div class="card-s" style="margin:-4px 0 14px">Base: ${n(S.todos.length)} posts do feed guardados desde ${desde} (${n(negN)} sobre negócio e marca, ${n(S.pes.length)} pessoais). A tabela de legendas segue o período escolhido no topo.</div>
+      <div class="grid g-kpi">
+        ${kpi({ ico: 'lupa', label: 'Nota SEO média das legendas', tip: 'seo_nota', valor: `${medNota}<small>/100</small>`, nota: 'posts de negócio' })}
+        ${kpi({ ico: 'alvo', label: 'Termo de busca na 1ª frase', tip: 'seo_inicio', valor: pct(pctDe((p) => p.seo.gruposFrase.length > 0), 0), nota: 'dos posts de negócio' })}
+        ${kpi({ ico: 'faisca', label: 'Ganchos de contraste', tip: 'seo_contraste', valor: pct(pctDe((p) => p.seo.gancho === 'contraste'), 0), nota: 'dos posts de negócio' })}
+        ${kpi({ ico: 'envio', label: 'Com convite natural para enviar', tip: 'seo_convite', valor: pct(pctDe((p) => p.seo.natural), 0), nota: 'dos posts de negócio' })}
+        ${kpi({ ico: 'comentario', label: 'Hashtags por post', tip: 'seo_hash', valor: n(hashMed, 1), nota: 'limite do Instagram: 5' })}
+        ${kpi({ ico: 'olho', label: 'Alcance de não seguidores', tip: 'ig_naoseg', valor: pct(G.ns), delta: deltaPts(G.ns, G.nsA), nota: 'conta inteira, no período' })}
+      </div>
+      <div class="card mt">${cardH('O que suas legendas mostram', 'Leitura automática dos posts publicados', 'seo_leituras', 'faisca')}<ul class="leit">${leiturasSeo(S).map(([t, x]) => `<li class="leit-${t}"><span></span><div>${x}</div></li>`).join('')}</ul></div>
+      <div class="card mt">${cardH('Avaliar a próxima legenda', 'Cole o texto antes de publicar e ajuste até a nota subir', 'seo_avaliador', 'lupa')}${avaliadorHtml()}</div>
+      <div class="card mt">${cardH('Temas e palavras-chave que puxam alcance', 'Posts de negócio com cada tema contra os que não têm', 'seo_palavras_t', 'lupa')}${palavrasHtml(S)}</div>
+      <div class="grid g-2 mt">
+        <div class="card">${cardH('Tipo de primeira frase', 'Qual abertura faz as pessoas enviarem', 'seo_ganchos', 'faisca')}${gruposHtml(S.ganchos, 'Gancho')}</div>
+        <div class="card">${cardH('Primeiras frases que mais circularam', 'Envios e salvos por alcance, posts de negócio', 'seo_top_frases', 'trofeu')}${melhoresGanchos(S)}</div>
+      </div>
+      <div class="grid g-2 mt">
+        <div class="card">${cardH('Convite para compartilhar', 'Pedido direto contra convite natural', 'seo_convite', 'envio')}${gruposHtml(S.convites, 'Tipo')}</div>
+        <div class="card">${cardH('Tamanho da legenda', 'Caracteres, posts de negócio', 'seo_tamanho', 'livro')}${gruposHtml(S.tamanhos, 'Tamanho')}</div>
+      </div>
+      <div class="grid g-2 mt">
+        <div class="card">${cardH('Negócio e pessoal', 'Como cada tipo de post circula', 'seo_tipo', 'pessoas')}${gruposHtml([Object.assign({ nome: 'Negócio e marca' }, S.negT), Object.assign({ nome: 'Pessoal e viagens' }, S.pesT)], 'Tipo')}</div>
+      </div>
+        <div class="card">${cardH('Hashtags usadas', 'As 12 mais usadas, com envios por alcance', 'seo_hash', 'comentario')}${hashtagsHtml(S)}</div>
+      </div>
+      <div class="card mt">${cardH('Nota SEO de cada legenda', 'Posts de negócio no período escolhido', 'seo_nota', 'lupa')}${tabelaSeo(S)}</div>
+      <div class="card mt">${cardH('Para as próximas legendas', 'Frases, convites e termos prontos para usar e testar', 'seo_banco', 'mega')}${bancoHtml()}</div>`;
+  }
+
   // ---------- gráfico ----------
   const GRAF = {
     visitas: { nome: 'Visitas ao site', serie: 'visitas' },
@@ -1193,7 +1530,7 @@
         const conectar = !G.real && !(I && I.conectado) ? `<div class="card mt-0 conectar">${cardH('Conectar o Instagram', DADOS && DADOS.conexoes && DADOS.conexoes.instagramApp ? 'Clique para autorizar a leitura dos dados na tela da Meta. Os números abaixo ainda são exemplo.' : 'Falta cadastrar o app do Instagram no Netlify. Os números abaixo ainda são exemplo.', 'ig_conectar', 'instagram', DADOS && DADOS.conexoes && DADOS.conexoes.instagramApp ? '<a class="btn dark" href="/api/painel/instagram/conectar">Conectar Instagram</a>' : '')}</div>` : '';
         const conectadoSemDados = !G.real && I && I.conectado;
         const status = (G.real || conectadoSemDados) ? `<div class="card-s" style="margin:-6px 0 14px">@${esc(I.usuario || '')} · ${I.coleta ? `atualizado ${horaColeta(I.coleta.em)}` : 'primeira coleta em andamento, volte em alguns minutos'} · <button class="lnk" type="button" id="ig-atualizar">Atualizar agora</button> · <button class="lnk" type="button" id="ig-desconectar">Desconectar</button></div>` : '';
-        return `${conectar}${status}
+        return `${subnavIg('instagram')}${conectar}${status}
         <div class="grid g-kpi">
           ${kpi({ ico: 'pessoas', label: 'Seguidores', tip: 'ig_seguidores', valor: n(G.seguidores), delta: delta(G.seguidores, segIni), nota: `vs início do período (${n(segIni)})` })}
           ${kpi({ ico: 'grafico', label: 'Seguidores líquidos', tip: 'ig_liquidos', valor: `${liq.atual >= 0 ? '+' : ''}${n(liq.atual)}`, delta: delta(liq.atual, liq.ant) })}
@@ -1249,6 +1586,11 @@
       },
     },
 
+    'instagram-seo': {
+      nome: 'Instagram', ico: 'instagram', oculto: true, sub: 'SEO e alcance: como as legendas ajudam você a ser encontrado e compartilhado.',
+      html() { return telaSeo(); },
+    },
+
     presenca: {
       nome: 'Presença', ico: 'presenca', sub: 'O quanto "Junior Sturmer" aparece e é citado fora dos seus canais.',
       html() {
@@ -1288,7 +1630,7 @@
 
   // ---------- navegação ----------
   function montarNav() {
-    $('#nav').innerHTML = Object.entries(VIEWS).map(([k, v]) => `<a class="nav-i" href="#/${k}" data-v="${k}">${ico(v.ico)}${v.nome}</a>`).join('');
+    $('#nav').innerHTML = Object.entries(VIEWS).filter(([, v]) => !v.oculto).map(([k, v]) => `<a class="nav-i" href="#/${k}" data-v="${k}">${ico(v.ico)}${v.nome}</a>`).join('');
     document.querySelectorAll('[data-ico]').forEach((el) => { el.innerHTML = ICO[el.dataset.ico] || ''; });
     $('#periodo').innerHTML = PERIODOS.map(([k, t]) => `<button type="button" role="tab" data-p="${k}" aria-selected="${k === periodo}">${t}</button>`).join('');
     $('#periodo').addEventListener('click', (e) => {
@@ -1307,7 +1649,7 @@
   function render() {
     const k = viewAtual();
     const v = VIEWS[k];
-    document.querySelectorAll('#nav .nav-i').forEach((a) => a.classList.toggle('is-on', a.dataset.v === k));
+    document.querySelectorAll('#nav .nav-i').forEach((a) => a.classList.toggle('is-on', a.dataset.v === k || (k === 'instagram-seo' && a.dataset.v === 'instagram')));
     $('#titulo').innerHTML = k === 'geral' ? 'Visão <em>geral.</em>' : `${v.nome}<em>.</em>`;
     $('#subtitulo').textContent = v.sub;
     document.title = `${v.nome} | Painel de métricas`;
@@ -1316,6 +1658,7 @@
     ligarPresenca();
     ligarBlog();
     ligarIg();
+    ligarSeo();
     const bd = $('#ig-desconectar');
     if (bd) bd.addEventListener('click', async () => {
       bd.disabled = true;

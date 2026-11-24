@@ -28,6 +28,9 @@ export const ymd = (d) => d.toISOString().slice(0, 10);
 export const menos = (d, dias) => new Date(d.getTime() - dias * 864e5);
 const inicioDiaSP = (d) => Math.floor(d.getTime() / 1000) + 3 * 3600; // 00:00 em São Paulo
 const diaSP = (iso) => ymd(new Date(new Date(iso).getTime() - 3 * 3600 * 1000));
+const horaSP = (iso) => new Date(new Date(iso).getTime() - 3 * 3600 * 1000).getUTCHours();
+// sobe quando a lista de métricas por post muda: força uma nova leitura de todos os posts guardados
+const VERSAO_METRICAS = 2;
 
 export function periodosPainel() {
   const hoje = hojeSP();
@@ -164,7 +167,10 @@ async function insightsMidia(t, m, tipo, erros) {
     if (!Object.keys(out).length) erros[`midia:${m.id}`] = e.message;
   }
   if (tipo === 'REELS') {
-    try { ler(await ig(`${m.id}/insights`, { metric: 'reels_skip_rate' }, t.token)); } catch (e) { /* métrica nova, pode não existir */ }
+    // pedidas uma a uma: são métricas novas ou nem sempre aceitas em reels, e uma recusa não pode derrubar as outras
+    for (const met of ['reels_skip_rate', 'ig_reels_video_view_total_time', 'follows', 'profile_visits']) {
+      try { ler(await ig(`${m.id}/insights`, { metric: met }, t.token)); } catch (e) { /* indisponível para este reel */ }
+    }
   }
   if (tipo === 'STORY') {
     try {
@@ -258,12 +264,12 @@ export async function coletar() {
   const atualizar = vistos.filter((m) => {
     const ant = midias[m.id];
     const idade = agora - new Date(m.timestamp).getTime();
-    if (!ant || !ant.insights) return true;
+    if (!ant || !ant.insights || ant.vm !== VERSAO_METRICAS) return true;
     const desde = agora - (ant.em || 0);
     return idade < 7 * 864e5 ? desde > 3600e3 : idade < 60 * 864e5 ? desde > 24 * 3600e3 : desde > 7 * 24 * 3600e3;
   });
   await emLotes(atualizar, 5, async (m) => {
-    midias[m.id] = { ...m, formato: formato(m), dia: diaSP(m.timestamp), insights: await insightsMidia(t, m, tipoMidia(m), erros), em: agora };
+    midias[m.id] = { ...m, formato: formato(m), dia: diaSP(m.timestamp), insights: await insightsMidia(t, m, tipoMidia(m), erros), em: agora, vm: VERSAO_METRICAS };
   });
   for (const m of vistos) if (midias[m.id] && !atualizar.includes(m)) Object.assign(midias[m.id], { caption: m.caption, thumbnail_url: m.thumbnail_url, media_url: m.media_url, like_count: m.like_count, comments_count: m.comments_count });
   for (const [id, m] of Object.entries(midias)) if (new Date(m.timestamp).getTime() < corte) delete midias[id];
@@ -309,10 +315,14 @@ export async function dadosPainel(periodo, diasSerie) {
   const hoje = hojeSP();
   const dias = Array.from({ length: diasSerie }, (_, k) => ymd(menos(hoje, diasSerie - 1 - k)));
   const corte = ymd(menos(hoje, 200));
-  const enxuta = (m) => ({
-    id: m.id, formato: m.formato, dia: m.dia, link: m.permalink, thumb: m.thumbnail_url || m.media_url || null,
-    texto: (m.caption || '').split('\n')[0].slice(0, 90), i: m.insights || {},
-  });
+  const enxuta = (m) => {
+    const legenda = m.caption || '';
+    const gancho = legenda.split('\n').map((l) => l.trim()).find(Boolean) || '';
+    return {
+      id: m.id, formato: m.formato, dia: m.dia, hora: m.timestamp ? horaSP(m.timestamp) : null, link: m.permalink, thumb: m.thumbnail_url || m.media_url || null,
+      texto: gancho.slice(0, 140), legenda: legenda.length, hashtags: (legenda.match(/#[\p{L}\p{N}_]+/gu) || []).length, i: m.insights || {},
+    };
+  };
   return {
     conectado: true,
     usuario: t.usuario,
